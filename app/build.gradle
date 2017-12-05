@@ -33,4 +33,7 @@ dependencies {
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
 
 //    compile 'org.didd.dev:fzhelper:1.0.1'
+    compile 'com.bbsz.sky:WebViewUI:1.0.3'
+    compile project(':http')
+    compile project(':common')
 }

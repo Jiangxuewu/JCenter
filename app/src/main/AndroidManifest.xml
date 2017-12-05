@@ -10,6 +10,12 @@
     <!-- Include required permissions for Google Mobile Ads to run. -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <!--Log-->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <!--location service-->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
 
     <application
         android:allowBackup="true"
@@ -76,7 +82,7 @@
 
         <activity
             android:name=".template.LoginActivity"
-            android:label="@string/title_activity_login"></activity>
+            android:label="@string/title_activity_login" />
         <activity
             android:name=".LauncherActivity"
             android:label="@string/main"
@@ -94,11 +100,27 @@
 
         <activity
             android:name=".GoogleAdMobActivity"
-            android:label="@string/title_activity_google_ad_mob"></activity> <!-- Include the AdActivity configChanges and theme. -->
+            android:label="@string/title_activity_google_ad_mob" /> <!-- Include the AdActivity configChanges and theme. -->
         <activity
             android:name="com.google.android.gms.ads.AdActivity"
             android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"
             android:theme="@android:style/Theme.Translucent" />
+        <activity
+            android:name=".weather.WeatherActivity"
+            android:label="@string/title_activity_weather"
+            android:theme="@style/AppTheme.NoActionBar" />
+
+        <service
+            android:name=".weather.service.LocationService"
+            android:enabled="true"
+            android:exported="true" />
+
+        <activity android:name=".weatheraccu.AccuWeatherActivity" />
+
+        <service
+            android:name=".weatheraccu.service.AccuLocationService"
+            android:enabled="true"
+            android:exported="false"></service>
     </application>
 
 </manifest>

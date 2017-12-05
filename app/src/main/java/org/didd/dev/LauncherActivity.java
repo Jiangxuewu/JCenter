@@ -1,7 +1,9 @@
 package org.didd.dev;
 
+import android.Manifest;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.ListViewCompat;
 import android.support.v7.widget.Toolbar;
@@ -14,6 +16,8 @@ import android.widget.BaseAdapter;
 import android.widget.ListAdapter;
 import android.widget.TextView;
 
+import com.bbsz.mlibrary.permissions.PermissionUtil;
+
 import org.didd.dev.template.BaseActivity;
 import org.didd.dev.template.ItemListActivity;
 import org.didd.dev.template.LoginActivity;
@@ -21,12 +25,16 @@ import org.didd.dev.template.NavigationDrawerActivity;
 import org.didd.dev.template.ScrollingActivity;
 import org.didd.dev.template.SettingsActivity;
 import org.didd.dev.template.TabbedMainActivity;
+import org.didd.dev.weather.WeatherActivity;
+import org.didd.dev.weatheraccu.AccuWeatherActivity;
 
 public class LauncherActivity extends AppCompatActivity {
 
     private static Class<?>[] cls = new Class<?>[]{BaseActivity.class, LoginActivity.class, ItemListActivity.class,
             NavigationDrawerActivity.class, ScrollingActivity.class, SettingsActivity.class, TabbedMainActivity.class,
-            GoogleAdMobActivity.class};
+            GoogleAdMobActivity.class, WeatherActivity.class, AccuWeatherActivity.class};
+
+    private PermissionUtil permissionUtil;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +57,28 @@ public class LauncherActivity extends AppCompatActivity {
             }
         });
 
+
+        permissionUtil = new PermissionUtil();
+
+        permissionUtil.requestPermission(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, new PermissionUtil.OnCheckPermissionCallback() {
+            @Override
+            public void requestPermissionSuccess() {
+
+            }
+
+            @Override
+            public void requestPermissionFailed() {
+
+            }
+        });
+
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (null != permissions)
+            permissionUtil.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
     class MainAdapter extends BaseAdapter {
