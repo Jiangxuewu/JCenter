@@ -9,15 +9,18 @@ import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
+import android.widget.TextView;
 
 import com.bbsz.mlibrary.permissions.PermissionUtil;
 import com.google.gson.Gson;
 
 import org.didd.common.L;
 import org.didd.dev.R;
+import org.didd.dev.service.MyLocation;
+import org.didd.dev.service.MyLocationService;
 import org.didd.dev.weatheraccu.data.AccuLocationData;
 import org.didd.dev.weatheraccu.response.AccuLocationBean;
-import org.didd.dev.weatheraccu.service.AccuLocationService;
 import org.didd.http.HttpResponse;
 import org.didd.http.IHttpCallback;
 
@@ -32,17 +35,18 @@ public class AccuWeatherActivity extends AppCompatActivity {
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             if (L.debug) L.i(TAG, "action:" + action);
-            if (AccuLocationService.ACTION_LOCATION_UPDATE.equals(action)) {
-                Serializable data = intent.getSerializableExtra(AccuLocationService.KEY_LOCATION_UPDATE);
+            if (MyLocationService.ACTION_LOCATION_UPDATE.equals(action)) {
+                Serializable data = intent.getSerializableExtra(MyLocationService.KEY_LOCATION_UPDATE);
 
-                if (null != data && data instanceof AccuLocation) {
-                    updateWeather((AccuLocation) data);
+                if (null != data && data instanceof MyLocation) {
+                    updateWeather((MyLocation) data);
                 }
 
             }
 
         }
     };
+    private TextView textView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,6 +77,24 @@ public class AccuWeatherActivity extends AppCompatActivity {
         unregisterLocationReceiver();
     }
 
+    private void addText(String txt) {
+        if (null == textView) {
+            textView = findViewById(R.id.text);
+        }
+        if (!TextUtils.isEmpty(textView.getText())) {
+            textView.setText(txt);
+        } else {
+            textView.setText(textView.getText() + "\n" + txt);
+        }
+    }
+
+    private void setText(String txt) {
+        if (null == textView) {
+            textView = findViewById(R.id.text);
+        }
+        textView.setText(txt);
+    }
+
     private void stopLocationService() {
 //        stopService()
         if (L.debug) L.i(TAG, "stopLocationService");
@@ -80,7 +102,7 @@ public class AccuWeatherActivity extends AppCompatActivity {
 
     private void startLocationService() {
         if (L.debug) L.i(TAG, "startLocationService");
-        startService(new Intent(this, AccuLocationService.class));
+        startService(new Intent(this, MyLocationService.class));
     }
 
     @Override
@@ -92,7 +114,7 @@ public class AccuWeatherActivity extends AppCompatActivity {
 
 
     private void registerLocationReceiver() {
-        IntentFilter intent = new IntentFilter(AccuLocationService.ACTION_LOCATION_UPDATE);
+        IntentFilter intent = new IntentFilter(MyLocationService.ACTION_LOCATION_UPDATE);
 
         registerReceiver(locationReceiver, intent);
 
@@ -103,22 +125,13 @@ public class AccuWeatherActivity extends AppCompatActivity {
     }
 
 
-    private void updateWeather(AccuLocation data) {
+    private void updateWeather(MyLocation data) {
 
         if (L.debug) L.i(TAG, "updateWeather:" + (null == data ? "null" : new Gson().toJson(data)));
-        Configuration config = getResources().getConfiguration();
-        String country = config.locale.getCountry();
-        String language = config.locale.getLanguage();
 
         AccuWeatherApi api = new AccuWeatherApi();
 
-
-        AccuLocationData info = new AccuLocationData();
-        info.q = "" + data.getLat() + "," + data.getLon();
-        info.language = language.toLowerCase() + "-" + country.toLowerCase();
-        info.details = true;
-        info.toplevel = false;
-        api.getLocation(info, new IHttpCallback() {
+        api.locations(getApplicationContext(), data, new IHttpCallback() {
             @Override
             public void result(HttpResponse httpResponse) {
 
@@ -134,8 +147,14 @@ public class AccuWeatherActivity extends AppCompatActivity {
 
     }
 
-    private void updateUI(AccuLocationBean bean) {
-
+    private void updateUI(final AccuLocationBean bean) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+//                setText(new Gson().toJson(bean));
+                setText(bean.getKey());
+            }
+        });
     }
 
 

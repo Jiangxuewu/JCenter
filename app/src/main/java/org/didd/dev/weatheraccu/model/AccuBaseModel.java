@@ -1,5 +1,7 @@
 package org.didd.dev.weatheraccu.model;
 
+import org.didd.dev.weatheraccu.data.AccuBaseData;
+import org.didd.dev.weatheraccu.data.AccuLocationData;
 import org.didd.http.BaseModel;
 import org.didd.http.Http;
 import org.didd.http.HttpEntry;
@@ -10,13 +12,14 @@ import org.didd.http.IHttpCallback;
  */
 
 public class AccuBaseModel extends BaseModel {
+    private final static String url = "https://api.accuweather.com/";
+    private AccuBaseData data;
     private IHttpCallback callback;
-    private String url;
 
-    public AccuBaseModel(String interfaceName, String url, IHttpCallback callback) {
-        super(interfaceName);
+    public AccuBaseModel(AccuBaseData data, IHttpCallback callback) {
+        super(data.interfaceName);
+        this.data = data;
         this.callback = callback;
-        this.url = url;
     }
 
     @Override
@@ -24,7 +27,8 @@ public class AccuBaseModel extends BaseModel {
         HttpEntry httpEntry = new HttpEntry();
         httpEntry.setType(Http.GET);
         httpEntry.setCallback(callback);
-        httpEntry.setBaseUrl(url);
+        httpEntry.setBody(toMap(data));
+        httpEntry.setBaseUrl(url + data.interfaceName);
         return httpEntry;
     }
 }

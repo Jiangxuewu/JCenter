@@ -1,11 +1,13 @@
 package org.didd.dev.weatheraccu;
 
+import android.content.Context;
+import android.content.res.Configuration;
 import android.text.TextUtils;
 
 import com.google.gson.Gson;
 
-import org.didd.common.L;
-import org.didd.dev.weather.httpx.CodeX;
+import org.didd.dev.service.MyLocation;
+import org.didd.dev.weatheraccu.data.AccuBaseData;
 import org.didd.dev.weatheraccu.data.AccuLocationData;
 import org.didd.dev.weatheraccu.model.AccuBaseModel;
 import org.didd.dev.weatheraccu.model.AccuLocationModel;
@@ -28,8 +30,33 @@ public class AccuWeatherApi {
 
     }
 
-    public void getLocation(AccuLocationData data, IHttpCallback callback) {
-        BaseModel location = new AccuLocationModel(data, callback);
+    /**
+     *
+     * @param data
+     * @param callback
+     */
+    public void locations(Context context, MyLocation data, IHttpCallback callback) {
+        Configuration config = context.getResources().getConfiguration();
+        String country = config.locale.getCountry();
+        String language = config.locale.getLanguage();
+
+        AccuLocationData info = new AccuLocationData();
+        info.q = "" + data.getLat() + "," + data.getLon();
+        info.language = language.toLowerCase() + "-" + country.toLowerCase();
+        info.details = true;
+        info.toplevel = false;
+        info.apikey = apiKey;
+        info.interfaceName = "locations/v1/cities/geoposition/search.json";
+
+        request(info, callback);
+    }
+
+    public void currentconditions(Context context){
+
+    }
+
+    private void request(AccuBaseData data, IHttpCallback callback){
+        BaseModel location = new AccuBaseModel(data, callback);
         HttpApi.getInstance().request(location);
     }
 

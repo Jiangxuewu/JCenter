@@ -39,7 +39,8 @@ public abstract class BaseModel {
             try {
                 item.setAccessible(true);
                 if (null != item.get(object)) {
-                    if (!"serialVersionUID".equalsIgnoreCase(item.getName())) {
+                    if (!"serialVersionUID".equalsIgnoreCase(item.getName())
+                            && !"interfaceName".equalsIgnoreCase(item.getName())) {
                         map.put(item.getName(), String.valueOf(item.get(object)));
                     }
                 }

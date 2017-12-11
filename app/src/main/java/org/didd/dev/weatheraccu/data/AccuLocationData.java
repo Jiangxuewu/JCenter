@@ -5,8 +5,4 @@ package org.didd.dev.weatheraccu.data;
  */
 
 public class AccuLocationData extends AccuBaseData {
-    public boolean toplevel;
-    public boolean details;
-    public String language;
-    public String q;
 }

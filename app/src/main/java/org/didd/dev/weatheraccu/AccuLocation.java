@@ -6,6 +6,8 @@ import java.io.Serializable;
 
 /**
  * Created by Jiangxuewu on 2017/12/5.
+ *
+ * @deprecated
  */
 
 public class AccuLocation implements Serializable {
