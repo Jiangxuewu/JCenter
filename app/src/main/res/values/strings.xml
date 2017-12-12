@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">JCenter</string>
     <string name="dddk_des">DDDK Helper</string>
+    <string name="weather_des">YoWeather Test Helper</string>
     <string name="title_activity_scrolling">ScrollingActivity</string>
     <string name="large_text">
         "Material is the metaphor.\n\n"

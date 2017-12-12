@@ -18,6 +18,7 @@ import android.widget.TextView;
 
 import com.bbsz.mlibrary.permissions.PermissionUtil;
 
+import org.didd.dev.accessibility.weather.WeatherTestActivity;
 import org.didd.dev.template.BaseActivity;
 import org.didd.dev.template.ItemListActivity;
 import org.didd.dev.template.LoginActivity;
@@ -32,7 +33,7 @@ public class LauncherActivity extends AppCompatActivity {
 
     private static Class<?>[] cls = new Class<?>[]{BaseActivity.class, LoginActivity.class, ItemListActivity.class,
             NavigationDrawerActivity.class, ScrollingActivity.class, SettingsActivity.class, TabbedMainActivity.class,
-            GoogleAdMobActivity.class, WeatherActivity.class, AccuWeatherActivity.class};
+            GoogleAdMobActivity.class, WeatherActivity.class, AccuWeatherActivity.class, WeatherTestActivity.class};
 
     private PermissionUtil permissionUtil;
 
