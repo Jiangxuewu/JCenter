@@ -12,9 +12,9 @@ import java.util.concurrent.Executors;
 
 
 /**
- * æ—¥å¿—è¾“å‡º
- * <p/>
- * æ—¥å¿—è¾“å‡ºçš„åŒæ—¶ï¼Œå†™å…¥åˆ°sdå¡ä¸­
+ * ÈÕÖ¾Êä³ö
+ * <p>
+ * ÈÕÖ¾Êä³öµÄÍ¬Ê±£¬Ğ´Èëµ½sd¿¨ÖĞ</p>
  *
  * @author Jxw
  */
@@ -23,55 +23,55 @@ public class FLog {
     private static String LOG_FILE_DIR_NAME = "Logs";
 
     /**
-     * æ—¥å¿—æ–‡ä»¶ä¿å­˜è·¯å¾„
+     * ÈÕÖ¾ÎÄ¼ş±£´æÂ·¾¶
      */
     public static String LOG_FILE_DIR = FileUtils.getSaveFilePath() + LOG_FILE_DIR_NAME + File.separator;
 
     /**
-     * æ—¥å¿—æ–‡ä»¶åç§°å‰ç¼€
+     * ÈÕÖ¾ÎÄ¼şÃû³ÆÇ°×º
      */
     public static String LOG_FILE_PREFIX = "sky_log_";// e.g.->full name
     // :sky_log_0.txt
     /**
-     * æ—¥å¿—æ–‡ä»¶åç§°åç¼€
+     * ÈÕÖ¾ÎÄ¼şÃû³Æºó×º
      */
     public static String LOG_FILE_SUFFIX = ".txt";
 
     /**
-     * æ—¥å¿—æ–‡ä»¶åç§°åç¼€
+     * ÈÕÖ¾ÎÄ¼şÃû³Æºó×º
      */
     public static int index = 0;
 
     /**
-     * é»˜è®¤æœ€å¤š40ä¸ªæ—¥å¿—æ–‡ä»¶
+     * Ä¬ÈÏ×î¶à40¸öÈÕÖ¾ÎÄ¼ş
      */
     private static int defaultMaxFiles = 40;
     /**
-     * æ—¥å¿—æ–‡ä»¶ä¸ªæ•°æœ€å¤§å€¼
+     * ÈÕÖ¾ÎÄ¼ş¸öÊı×î´óÖµ
      */
     private static int maxFiles = defaultMaxFiles;
 
     /**
-     * å•ä¾‹çº¿ç¨‹æ± 
+     * µ¥ÀıÏß³Ì³Ø
      */
     private static ExecutorService executorService = null;
 
     private static FileWriter fileWriter = null;
 
     /**
-     * æ–‡ä»¶å¤§å°500kb
+     * ÎÄ¼ş´óĞ¡500kb
      */
     private static int file_size = 1024 * 500;
 
     /**
-     * å†³å®šæ—¥å¿—æ˜¯å¦å†™å…¥æ–‡ä»¶
+     * ¾ö¶¨ÈÕÖ¾ÊÇ·ñĞ´ÈëÎÄ¼ş
      */
     private static boolean isWriteToFile = true;
 
     /**
-     * è®¾ç½®æ—¥å¿—æ˜¯å¦éœ€è¦å†™å…¥æ–‡ä»¶ä¸­ï¼Œé»˜è®¤æ˜¯å†™å…¥çš„
+     * ÉèÖÃÈÕÖ¾ÊÇ·ñĞèÒªĞ´ÈëÎÄ¼şÖĞ£¬Ä¬ÈÏÊÇĞ´ÈëµÄ
      *
-     * @param isWriteToFile
+     * @param isWriteToFile isWriteToFile
      */
     public static void setIsWriteToFile(boolean isWriteToFile) {
         FLog.isWriteToFile = isWriteToFile;
@@ -128,9 +128,9 @@ public class FLog {
     }
 
     /**
-     * ä¿®æ”¹æ—¥å¿—æ–‡ä»¶å‰ç¼€åç§°
+     * ĞŞ¸ÄÈÕÖ¾ÎÄ¼şÇ°×ºÃû³Æ
      *
-     * @param prefix
+     * @param prefix prefix
      */
     public static void setLogFilePrefix(String prefix) {
         if (!TextUtils.isEmpty(prefix) && !FLog.LOG_FILE_PREFIX.equals(prefix)) {
@@ -140,7 +140,7 @@ public class FLog {
     }
 
     /**
-     * ä¿®æ”¹æ—¥å¿—æ–‡ä»¶åç¼€åç§°
+     * ĞŞ¸ÄÈÕÖ¾ÎÄ¼şºó×ºÃû³Æ
      *
      * @param stuffix e.g. ".txt"
      */
@@ -158,18 +158,18 @@ public class FLog {
     }
 
     /**
-     * è®¾ç½®æœ€å¤§æ—¥å¿—æ–‡ä»¶ä¸ªæ•°
+     * ÉèÖÃ×î´óÈÕÖ¾ÎÄ¼ş¸öÊı
      *
-     * @param maxFiles
+     * @param maxFiles maxFiles
      */
     public static void setMaxFiles(int maxFiles) {
         FLog.maxFiles = maxFiles;
     }
 
     /**
-     * è·å–æ—¥å¿—æ–‡ä»¶åç§°
+     * »ñÈ¡ÈÕÖ¾ÎÄ¼şÃû³Æ
      *
-     * @return
+     * @return file name
      */
     private synchronized static String getFileName() {
         if (index >= maxFiles) {
@@ -189,7 +189,7 @@ public class FLog {
     }
 
     /**
-     * çº¿ç¨‹ä¸­å†™å…¥æ–‡ä»¶
+     * Ïß³ÌÖĞĞ´ÈëÎÄ¼ş
      *
      * @param tag
      * @param format

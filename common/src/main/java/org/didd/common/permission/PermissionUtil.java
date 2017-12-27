@@ -10,10 +10,10 @@ import java.util.List;
 
 /**
  * Created by jiangxuewu on 2016/1/22.
- * <p>ä½¿ç”¨æ–¹æ³•:</p>
- * <p>è·å–å®ä¾‹åè°ƒç”¨æ–¹æ³•{@link #requestPermission(Activity, String[], OnCheckPermissionCallback)}å¼€å§‹ç”³è¯·æƒé™</p>
- * <p>å¹¶ä¸”åœ¨{@link Activity#onRequestPermissionsResult(int, String[], int[])} æ–¹æ³•ä¸­è°ƒç”¨ {@link #onRequestPermissionsResult(Activity, int, String[], int[])} å®ç°api 23 æƒé™çš„åŠ¨æ€ç”³è¯·</p>
- * <p>æƒé™ç”³è¯·ç»“æœåœ¨å‚æ•°çš„{@link OnCheckPermissionCallback} å›è°ƒä¸­</p>
+ * <p>Ê¹ÓÃ·½·¨:</p>
+ * <p>»ñÈ¡ÊµÀıºóµ÷ÓÃ·½·¨{@link #requestPermission(Activity, String[], OnCheckPermissionCallback)}¿ªÊ¼ÉêÇëÈ¨ÏŞ</p>
+ * <p>²¢ÇÒÔÚ{@link Activity#onRequestPermissionsResult(int, String[], int[])} ·½·¨ÖĞµ÷ÓÃ {@link #onRequestPermissionsResult(Activity, int, String[], int[])} ÊµÏÖapi 23 È¨ÏŞµÄ¶¯Ì¬ÉêÇë</p>
+ * <p>È¨ÏŞÉêÇë½á¹ûÔÚ²ÎÊıµÄ{@link OnCheckPermissionCallback} »Øµ÷ÖĞ</p>
  */
 public class PermissionUtil {
 
@@ -50,12 +50,12 @@ public class PermissionUtil {
 
 
     /**
-     * åŒæ—¶ç”³è¯·å¤šä¸ªæƒé™
-     * </p>åœ¨{@link Activity#onRequestPermissionsResult(int, String[], int[])} æ–¹æ³•ä¸­è°ƒç”¨ {@link #onRequestPermissionsResult(Activity, int, String[], int[])} å®ç°api 23 æƒé™çš„åŠ¨æ€ç”³è¯·</p>
+     * Í¬Ê±ÉêÇë¶à¸öÈ¨ÏŞ
+     * <p>ÔÚ{@link Activity#onRequestPermissionsResult(int, String[], int[])} ·½·¨ÖĞµ÷ÓÃ {@link #onRequestPermissionsResult(Activity, int, String[], int[])} ÊµÏÖapi 23 È¨ÏŞµÄ¶¯Ì¬ÉêÇë</p>
      *
-     * @param context
-     * @param permission
-     * @param callback
+     * @param context activity
+     * @param permission permission
+     * @param callback callback
      */
     public void requestPermission(Activity context, String[] permission, OnCheckPermissionCallback callback) {
         mCheckPermissionCallback = callback;
@@ -63,7 +63,7 @@ public class PermissionUtil {
             List<String> permissionNeedApply = new ArrayList<String>();
             for (String item : permission) {
                 int res = context.checkSelfPermission(item);
-                if (res != PackageManager.PERMISSION_GRANTED) {//æ— æƒé™,éœ€è¦ç”³è¯·.
+                if (res != PackageManager.PERMISSION_GRANTED) {//ÎŞÈ¨ÏŞ,ĞèÒªÉêÇë.
                     permissionNeedApply.add(item);
                 }
             }
@@ -83,12 +83,13 @@ public class PermissionUtil {
     }
 
     /**
-     * å¤„ç†æƒé™ç”³è¯·å›è°ƒ
-     * <p>åœ¨Activityçš„{@link Activity#onRequestPermissionsResult(int, String[], int[])} æ–¹æ³•ä¸­è°ƒç”¨æ–¹æ³•ä¸­è°ƒç”¨è¯¥æ–¹æ³•</p>
+     *´¦ÀíÈ¨ÏŞÉêÇë»Øµ÷
+     * <p>ÔÚActivityµÄ{@link Activity#onRequestPermissionsResult(int, String[], int[])} ·½·¨ÖĞµ÷ÓÃ·½·¨ÖĞµ÷ÓÃ¸Ã·½·¨</p>
      *
-     * @param requestCode
-     * @param permissions
-     * @param grantResults
+     * @param activity activity
+     * @param requestCode request code
+     * @param permissions permissions
+     * @param grantResults permissions grant result
      */
     public void onRequestPermissionsResult(Activity activity, int requestCode, String[] permissions, int[] grantResults) {
         switch (requestCode) {
