@@ -1,4 +1,4 @@
-package org.didd.common;
+package org.didd.common.log;
 
 
 

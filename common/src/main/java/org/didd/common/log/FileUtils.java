@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.didd.common;
+package org.didd.common.log;
 
 import android.graphics.Bitmap;
 import android.os.Environment;

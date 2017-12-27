@@ -1,4 +1,4 @@
-package org.didd.common;
+package org.didd.common.log;
 
 import android.text.TextUtils;
 import android.text.format.DateFormat;
