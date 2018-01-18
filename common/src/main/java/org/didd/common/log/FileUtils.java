@@ -22,7 +22,7 @@ import java.util.zip.ZipOutputStream;
 
 /**
  * @author jWX159728
- *         2013-11-4 @Time下午06:14:10
+ *         2013-11-4 @Time涓嬪崍06:14:10
  */
 public class FileUtils {
     private static final String TAG = FileUtils.class.getSimpleName();
@@ -284,7 +284,6 @@ public class FileUtils {
     private static List<String> getListFiles(File f, String suffix,
                                              boolean isdepth) {
 
-        // 是目录，同时需要遍历子目录
         if (f.isDirectory() && isdepth == true) {
             File[] t = f.listFiles();
             for (int i = 0; i < t.length; i++) {
@@ -295,14 +294,13 @@ public class FileUtils {
 
             System.out.println("suffix = " + suffix);
             if (suffix == null || suffix.equals("")) {
-                // 后缀名为null则为所有文件
                 System.out.println("----------------");
                 fileList.add(filePath);
             } else {
-                int begIndex = filePath.lastIndexOf(".");// 最后一个.(即后缀名前面的.)的索引
+                int begIndex = filePath.lastIndexOf(".");
                 String tempsuffix = "";
 
-                if (begIndex != -1)// 防止是文件但却没有后缀名结束的文件
+                if (begIndex != -1)
                 {
                     tempsuffix = filePath.substring(begIndex + 1,
                             filePath.length());
@@ -441,9 +439,9 @@ public class FileUtils {
     }
 
     /**
-     * 保存文件
+     * Save file
      *
-     * @param bm Bitmap
+     * @param bm       Bitmap
      * @param filePath filePath
      */
     public static void saveFile(Bitmap bm, String filePath) {

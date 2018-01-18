@@ -12,9 +12,10 @@ import java.util.concurrent.Executors;
 
 
 /**
- * 日志输出
+ * Log input
  * <p>
- * 日志输出的同时，写入到sd卡中</p>
+ * save log to sdcard if {@link #setIsWriteToFile(boolean)} params is true
+ * </p>
  *
  * @author Jxw
  */
@@ -23,53 +24,53 @@ public class FLog {
     private static String LOG_FILE_DIR_NAME = "Logs";
 
     /**
-     * 日志文件保存路径
+     * The path of log in sdcard.
      */
     public static String LOG_FILE_DIR = FileUtils.getSaveFilePath() + LOG_FILE_DIR_NAME + File.separator;
 
     /**
-     * 日志文件名称前缀
+     * The prefix of log file.
      */
     public static String LOG_FILE_PREFIX = "sky_log_";// e.g.->full name
     // :sky_log_0.txt
     /**
-     * 日志文件名称后缀
+     * The suffix of log file.
      */
     public static String LOG_FILE_SUFFIX = ".txt";
 
     /**
-     * 日志文件名称后缀
+     * The index of log file.
      */
     public static int index = 0;
 
     /**
-     * 默认最多40个日志文件
+     * The max count of log files.
      */
     private static int defaultMaxFiles = 40;
     /**
-     * 日志文件个数最大值
+     * The max size of one log file.
      */
     private static int maxFiles = defaultMaxFiles;
 
     /**
-     * 单例线程池
+     * Single thread pool
      */
     private static ExecutorService executorService = null;
 
     private static FileWriter fileWriter = null;
 
     /**
-     * 文件大小500kb
+     * The max size of one log file is 500kb
      */
     private static int file_size = 1024 * 500;
 
     /**
-     * 决定日志是否写入文件
+     * Tag of whether write to log file
      */
-    private static boolean isWriteToFile = true;
+    private static boolean isWriteToFile = false;
 
     /**
-     * 设置日志是否需要写入文件中，默认是写入的
+     * set Tag of whether write to log file.
      *
      * @param isWriteToFile isWriteToFile
      */
@@ -128,7 +129,7 @@ public class FLog {
     }
 
     /**
-     * 修改日志文件前缀名称
+     * set the prefix of log file.
      *
      * @param prefix prefix
      */
@@ -140,25 +141,25 @@ public class FLog {
     }
 
     /**
-     * 修改日志文件后缀名称
+     * set the suffix of log file.
      *
-     * @param stuffix e.g. ".txt"
+     * @param suffix e.g. ".txt"
      */
-    public static void setLogFileStuffix(String stuffix) {
-        if (TextUtils.isEmpty(stuffix)) {
+    public static void setLogFileSuffix(String suffix) {
+        if (TextUtils.isEmpty(suffix)) {
             return;
         }
-        if (!stuffix.contains(".")) {
-            stuffix = "." + stuffix;
+        if (!suffix.contains(".")) {
+            suffix = "." + suffix;
         }
-        if (!FLog.LOG_FILE_SUFFIX.equals(stuffix)) {
+        if (!FLog.LOG_FILE_SUFFIX.equals(suffix)) {
             index = 0;
         }
-        FLog.LOG_FILE_SUFFIX = stuffix;
+        FLog.LOG_FILE_SUFFIX = suffix;
     }
 
     /**
-     * 设置最大日志文件个数
+     * set the max count of log files.
      *
      * @param maxFiles maxFiles
      */
@@ -167,7 +168,7 @@ public class FLog {
     }
 
     /**
-     * 获取日志文件名称
+     * get log file name.
      *
      * @return file name
      */
@@ -189,8 +190,6 @@ public class FLog {
     }
 
     /**
-     * 线程中写入文件
-     *
      * @param tag
      * @param format
      */
@@ -258,6 +257,7 @@ public class FLog {
         write(tag, format);
         prient(Log.INFO, tag, format);
     }
+
     public static void w(String tag, String format) {
         if (null == executorService) {
             init();

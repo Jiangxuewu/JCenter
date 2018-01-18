@@ -10,10 +10,10 @@ import java.util.List;
 
 /**
  * Created by jiangxuewu on 2016/1/22.
- * <p>使用方法:</p>
- * <p>获取实例后调用方法{@link #requestPermission(Activity, String[], OnCheckPermissionCallback)}开始申请权限</p>
- * <p>并且在{@link Activity#onRequestPermissionsResult(int, String[], int[])} 方法中调用 {@link #onRequestPermissionsResult(Activity, int, String[], int[])} 实现api 23 权限的动态申请</p>
- * <p>权限申请结果在参数的{@link OnCheckPermissionCallback} 回调中</p>
+ * <p>Usage method:</p>
+ * <p>Invocation method after getting an instance{@link #requestPermission(Activity, String[], OnCheckPermissionCallback)}Start application permissions</p>
+ * <p>And  call in the Method{@link Activity#onRequestPermissionsResult(int, String[], int[])} , {@link #onRequestPermissionsResult(Activity, int, String[], int[])}</p>
+ * <p>The result of the permission application is in the parameter{@link OnCheckPermissionCallback} In the callback</p>
  */
 public class PermissionUtil {
 
@@ -50,12 +50,12 @@ public class PermissionUtil {
 
 
     /**
-     * 同时申请多个权限
-     * <p>在{@link Activity#onRequestPermissionsResult(int, String[], int[])} 方法中调用 {@link #onRequestPermissionsResult(Activity, int, String[], int[])} 实现api 23 权限的动态申请</p>
+     * Apply multiple rights at the same time
+     * <p>Call in Method {@link Activity#onRequestPermissionsResult(int, String[], int[])}, Call Method {@link #onRequestPermissionsResult(Activity, int, String[], int[])} Dynamic application to implement API 23 permissions</p>
      *
-     * @param context activity
+     * @param context    activity
      * @param permission permission
-     * @param callback callback
+     * @param callback   callback
      */
     public void requestPermission(Activity context, String[] permission, OnCheckPermissionCallback callback) {
         mCheckPermissionCallback = callback;
@@ -63,7 +63,7 @@ public class PermissionUtil {
             List<String> permissionNeedApply = new ArrayList<String>();
             for (String item : permission) {
                 int res = context.checkSelfPermission(item);
-                if (res != PackageManager.PERMISSION_GRANTED) {//无权限,需要申请.
+                if (res != PackageManager.PERMISSION_GRANTED) {//?????,???????.
                     permissionNeedApply.add(item);
                 }
             }
@@ -83,12 +83,12 @@ public class PermissionUtil {
     }
 
     /**
-     *处理权限申请回调
-     * <p>在Activity的{@link Activity#onRequestPermissionsResult(int, String[], int[])} 方法中调用方法中调用该方法</p>
+     * Processing permission application callback
+     * <p>In Activity Method {@link Activity#onRequestPermissionsResult(int, String[], int[])} The method calls the method in the method call method</p>
      *
-     * @param activity activity
-     * @param requestCode request code
-     * @param permissions permissions
+     * @param activity     activity
+     * @param requestCode  request code
+     * @param permissions  permissions
      * @param grantResults permissions grant result
      */
     public void onRequestPermissionsResult(Activity activity, int requestCode, String[] permissions, int[] grantResults) {
