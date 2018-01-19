@@ -46,6 +46,29 @@ public class SchemeUtil {
         }
     }
 
+    /**
+     * get V2 extra info
+     *
+     * @param file apk file path
+     * @return all info.
+     */
+    public static String getScheme(File file) {
+        Map<Integer, ByteBuffer> map = _getV2ExtroInfo(file);
+
+        if (null == map) return null;
+
+        ByteBuffer buf = map.get(id);
+
+        if (null == buf) {
+            return null;
+        }
+        try {
+            return parseRes(new String(getBytes(buf), CONTENT_CHARSET));
+        } catch (UnsupportedEncodingException e) {
+            return parseRes(new String(getBytes(buf)));
+        }
+    }
+
     private static byte[] getBytes(final ByteBuffer byteBuffer) {
         final byte[] array = byteBuffer.array();
         final int arrayOffset = byteBuffer.arrayOffset();
@@ -95,5 +118,9 @@ public class SchemeUtil {
         } catch (JSONException e) {
             return null;
         }
+    }
+
+    private static String parseRes(String res) {
+        return res;
     }
 }
