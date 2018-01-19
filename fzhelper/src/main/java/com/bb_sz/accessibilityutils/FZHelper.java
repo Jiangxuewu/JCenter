@@ -260,7 +260,7 @@ public class FZHelper {
         if (null == nodes || nodes.isEmpty()) return null;
         if (debug) Log.e(TAG, "viewTextForId(), size = " + nodes.size());
         for (AccessibilityNodeInfo item : nodes) {
-            if (!TextUtils.isEmpty(item.getText().toString())) {
+            if (!TextUtils.isEmpty(item.getText())) {
                 return item.getText().toString();
             }
         }
