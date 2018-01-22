@@ -3,7 +3,7 @@ package org.didd.http;
 import android.text.TextUtils;
 
 /**
- * Created by Jiangxuewu on 2017/12/4.
+ * Created by xuewu.jiang@afmobigroup.com on 2017/11/6.
  */
 
 public class HttpApi {
@@ -30,10 +30,11 @@ public class HttpApi {
         if (null == entry) return;
         String allUrl = (entry.getBaseUrl().startsWith("http") ? entry.getBaseUrl() : url + entry.getBaseUrl());
         if (entry.getType() == Http.GET) {
-            if (TextUtils.isEmpty(Http.mapToString(entry.getBody()))){
-                entry.setBaseUrl(allUrl/*.endsWith("?") ? allUrl : allUrl + "?" */);
+            if (TextUtils.isEmpty(Http.mapToString(entry.getBody()))) {
+                entry.setBaseUrl(allUrl);
             } else {
                 entry.setBaseUrl(allUrl + "?" + Http.mapToString(entry.getBody()));
+                entry.setBody(null);
             }
             entry.setBody(null);
         } else

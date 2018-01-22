@@ -2,9 +2,9 @@ package org.didd.http;
 
 
 import android.text.TextUtils;
-import android.util.Log;
 
 
+import org.didd.common.log.L;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -44,7 +44,6 @@ public class Http {
     private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
     private static final MediaType X = MediaType.parse("application/x-www-form-urlencoded; charset=utf-8");
     private static Http mInstance;
-    private static final boolean debug = true;
 
     public static Http getInstance() {
         synchronized (TAG) {
@@ -62,7 +61,7 @@ public class Http {
 
     /**
      * @param httpEntry http entry
-     * @throws NullPointerException
+     * @throws NullPointerException NullPointerException
      */
     public void request(final HttpEntry httpEntry) throws NullPointerException {
         if (null == httpEntry) throw new NullPointerException("HttpEntry is null!");
@@ -91,6 +90,7 @@ public class Http {
         } else if (httpEntry.getType() == POST) {
             doPost(httpEntry);
         } else {
+            if (BuildConfig.DEBUG) L.e(TAG, "not support http type = " + httpEntry.getType());
             IHttpCallback callback = httpEntry.getCallback();
             if (null != callback) {
                 callback.result(new HttpResponse(ERROR_NOT_SUPPORT_CODE, ERROR_NOT_SUPPORT_MSG));
@@ -167,9 +167,9 @@ public class Http {
         }
 
         OkHttpClient client = new OkHttpClient.Builder()
-                .readTimeout(READ_TIMEOUT, TimeUnit.SECONDS)//设置读取超时时间
-                .writeTimeout(WRITE_TIMEOUT, TimeUnit.SECONDS)//设置写的超时时间
-                .connectTimeout(CONNECT_TIMEOUT, TimeUnit.SECONDS)//设置连接超时时间
+                .readTimeout(READ_TIMEOUT, TimeUnit.SECONDS)//set read timeout
+                .writeTimeout(WRITE_TIMEOUT, TimeUnit.SECONDS)//set write timeout
+                .connectTimeout(CONNECT_TIMEOUT, TimeUnit.SECONDS)//set connect timeout
                 .build();
 
         Request request = builder.build();
@@ -178,7 +178,7 @@ public class Http {
         IHttpCallback callback = httpEntry.getCallback();
         if (null != callback) {
             HttpResponse httpResponse = convertHttpResponse(response, httpEntry);
-            if (debug) Log.d(TAG, httpResponse.log());
+            if (BuildConfig.DEBUG) L.d(TAG, httpResponse.log());
             callback.result(httpResponse);
         }
     }

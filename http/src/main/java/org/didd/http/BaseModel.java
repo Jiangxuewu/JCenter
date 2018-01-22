@@ -1,7 +1,6 @@
 package org.didd.http;
 
 
-import com.google.gson.Gson;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
@@ -9,6 +8,7 @@ import java.util.Map;
 
 /**
  * Created by Administrator on 2017/3/15.
+ * <p>Request base model</p>
  */
 
 public abstract class BaseModel {
@@ -20,10 +20,6 @@ public abstract class BaseModel {
     }
 
     public abstract HttpEntry toHttpEntry();
-
-    protected String toJson(Object object) {
-        return new Gson().toJson(object);
-    }
 
     protected Map<String, String> toMap(Object object) {
         Map<String, String> map = new HashMap<>();
@@ -39,8 +35,7 @@ public abstract class BaseModel {
             try {
                 item.setAccessible(true);
                 if (null != item.get(object)) {
-                    if (!"serialVersionUID".equalsIgnoreCase(item.getName())
-                            && !"interfaceName".equalsIgnoreCase(item.getName())) {
+                    if (!"serialVersionUID".equalsIgnoreCase(item.getName())) {
                         map.put(item.getName(), String.valueOf(item.get(object)));
                     }
                 }
