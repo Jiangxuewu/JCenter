@@ -1,0 +1,424 @@
+package org.didd.version;
+
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
+import android.content.pm.ResolveInfo;
+import android.net.Uri;
+import android.os.Handler;
+import android.os.Looper;
+import android.support.v7.app.AlertDialog;
+import android.text.TextUtils;
+import android.view.KeyEvent;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.google.gson.Gson;
+import com.transsnet.version.R;
+
+import org.didd.common.log.L;
+import org.didd.http.BaseModel;
+import org.didd.http.HttpApi;
+import org.didd.http.HttpResponse;
+import org.didd.http.HttpResponseBody;
+import org.didd.http.IHttpCallback;
+
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.List;
+
+/**
+ * Created by Jiangxuewu on 2018/1/23.
+ * <p>Check new Version from server</p>
+ * <p>Show update dialog</p>
+ */
+
+public class VersionApi implements IHttpCallback, DialogInterface.OnKeyListener, DialogInterface.OnCancelListener, View.OnClickListener {
+
+    private static final Object LOCK = new Object();
+    private static final String SH_FILE_NAME = "DIDD_VERSION_SP_FILE";
+    private static final long DAY_TIME = 24 * 60 * 60 * 1000;
+    private static final String TAG = VersionApi.class.getSimpleName();
+    private static VersionApi mInstance;
+    static String versionHttpUrl;
+    private SharedPreferences mSp;
+    private Context mContext;
+    private VersionBean data;
+    private String mAppName;
+    private AlertDialog mDialog;
+    private static final boolean debug = false;
+    private boolean isRequesting;
+
+    public static VersionApi getInstance() {
+        synchronized (LOCK) {
+            if (null == mInstance) {
+                mInstance = new VersionApi();
+            }
+            return mInstance;
+        }
+    }
+
+    private VersionApi() {
+    }
+
+    //first init
+    public void init(Context context, String httpUrl, String appName, String channel, String version) {
+        if (debug) L.d(TAG, "init, httpUrl = " + httpUrl);
+        if (debug) L.d(TAG, "init, appName = " + appName);
+        if (debug) L.d(TAG, "init, channel = " + channel);
+        if (debug) L.d(TAG, "init, version = " + version);
+        if (TextUtils.isEmpty(httpUrl)) return;
+        // check local update data
+        // get update data from server
+        // show update dialog
+        versionHttpUrl = httpUrl;
+        mContext = context;
+        mAppName = appName;
+
+        mSp = context.getSharedPreferences(SH_FILE_NAME, Context.MODE_PRIVATE);
+
+        requestFromServer(channel, version);
+    }
+
+    private void requestFromServer(String channel, String version) {
+        if (isRequesting) {
+            return;
+        }
+        ReqBodyUpdate bodyUpdate = new ReqBodyUpdate();
+        bodyUpdate.packageName = mContext.getPackageName();
+        bodyUpdate.cversion = version;
+        bodyUpdate.channel = channel;
+
+        ReqHead head = new ReqHead();
+
+        head.sign = getHeadSign(bodyUpdate);
+
+        VersionReq data = new VersionReq();
+        data.reqBody = bodyUpdate;
+        data.reqHead = head;
+
+        BaseModel model = new NewVersionModel(data, this);
+        HttpApi.getInstance().request(model);
+        isRequesting = true;
+    }
+
+
+    private String getHeadSign(ReqBodyUpdate bodyUpdate) {
+        if (null == bodyUpdate) return null;
+        return md5Of32("channel=" + bodyUpdate.channel
+                + "&cversion=" + bodyUpdate.cversion
+                + "&packageName=" + bodyUpdate.packageName);
+    }
+
+    private void showDialogInUI(final VersionBean data) {
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    showDialog(data);
+                } catch (Exception ignored) {
+                }
+                saveCount(data);
+            }
+        });
+    }
+
+    private void saveCount(VersionBean data) {
+        //get sp file key
+        String spKey = getSPKey(data.getStrategyName());
+        //get alert times
+        int totalAlertTimes = getIntFromSp(spKey + "_total");
+        // set alert times
+        setIntFromSp(spKey + "_total", totalAlertTimes + 1);
+        //set last alert time
+        setLongFromSp(spKey + "_time");
+    }
+
+    @Override
+    public void result(HttpResponse httpResponse) {
+        isRequesting = false;
+        if (debug)
+            L.d(TAG, "result, code = " + (null == httpResponse ? "null" : httpResponse.code));
+        if (null == httpResponse || httpResponse.code < 200 || httpResponse.code >= 300) {
+
+            //test start
+
+//            if (debug)
+//                test();
+            //test end
+
+            return;
+        }
+
+
+        HttpResponseBody body = httpResponse.getBody();
+        if (null != body) {
+            String str = body.getString();
+            if (!TextUtils.isEmpty(str)) {
+                VersionResponse response = new Gson().fromJson(str, VersionResponse.class);
+                handleResult(response);
+            }
+        }
+    }
+
+//    private void test() {
+//        if (debug)
+//            L.d(TAG, "result, start test.....");
+//        data = new VersionBean();
+//        data.setAlertTimes(21);
+//        data.setAlertInterval(0);
+//        data.setDownloadUrl("https://play.google.com/store/apps/details?id=com.yomobigroup.yoweather");
+//        data.setStrategyName("V1.2.0");
+//        data.setUpdateDesc("1, Update 1...\n2, Update 2....\n3, Update 3.......3333\n4, Update 4444\n2, Update 2....\n3, Update 3.......3333\n4, Update 4444\n2, Update 2....\n3, Update 3.......3333\n4, Update 4444\n2, Update 2....\n3, Update 3.......3333\n4, Update 4444");
+//        data.setUpgradeStrategy("1");
+//
+//        showUpdateMessage(data);
+//    }
+
+    private void handleResult(VersionResponse response) {
+
+        if (null == response || response.getCode() != 0) {
+            return;
+        }
+
+        showUpdateMessage(response.getData());
+
+    }
+
+    private void showUpdateMessage(VersionBean data) {
+        if (null == data) {
+            if (debug) L.d(TAG, "showUpdateMessage, data is null");
+//            if (debug)
+//                test();
+            return;
+        }
+
+        if (checkRight(data)) {
+            if (debug) L.d(TAG, "showUpdateMessage, checkRight = true");
+            showDialogInUI(data);
+        }
+    }
+
+    private boolean checkRight(VersionBean data) {
+        if (null == data) {
+            if (debug) L.d(TAG, "checkRight, checkRight = false, data is null");
+            return false;
+        }
+        //get sp file key
+        String spKey = getSPKey(data.getStrategyName());
+        //get alert times
+        int totalAlertTimes = getIntFromSp(spKey + "_total");
+        //get last alert time
+        long lastAlertTime = getLongFromSp(spKey + "_time");
+        //compare alert total times
+        if (data.getAlertTimes() >= 0 && data.getAlertTimes() <= totalAlertTimes) {
+
+            if (debug) L.d(TAG, "checkRight, checkRight = false, total times");
+            return false;
+        }
+
+        //compare last alert time
+        if (data.getAlertInterval() >= 0 && System.currentTimeMillis() - lastAlertTime <= data.getAlertInterval() * DAY_TIME) {
+            if (debug) L.d(TAG, "checkRight, checkRight = false, alert interval");
+            return false;
+        }
+        if (debug) L.d(TAG, "checkRight, checkRight = true");
+        return true;
+    }
+
+    private long getLongFromSp(String key) {
+        if (null == mSp) return 0;
+        return mSp.getLong(key, 0);
+    }
+
+    private void setLongFromSp(String key) {
+        if (null == mSp) return;
+        mSp.edit().putLong(key, System.currentTimeMillis()).apply();
+    }
+
+    private int getIntFromSp(String spKey) {
+        if (null == mSp) return 0;
+        return mSp.getInt(spKey, 0);
+    }
+
+    private void setIntFromSp(String spKey, int value) {
+        if (null == mSp) return;
+        mSp.edit().putInt(spKey, value).apply();
+    }
+
+    private String getSPKey(String key) {
+        return md5Of32(key);
+    }
+
+    private String md5Of32(String plainText) {
+        String result = "";
+        if (null == plainText) return null;
+        try {
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            md.update(plainText.getBytes());
+            byte[] b = md.digest();
+
+            StringBuffer buf = new StringBuffer("");
+            for (int offset = 0; offset < b.length; offset++) {
+                int i = b[offset];
+                if (i < 0)
+                    i += 256;
+                if (i < 16)
+                    buf.append("0");
+                buf.append(Integer.toHexString(i));
+            }
+            return buf.toString();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    private void showDialog(VersionBean data) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+
+        View customView = View.inflate(mContext, R.layout.didd_version_layout, null);
+
+        initCustomViewData(customView, data);
+
+        builder.setView(customView);
+
+        mDialog = builder.create();
+
+        mDialog.setCanceledOnTouchOutside(false);
+        mDialog.setOnKeyListener(this);
+        mDialog.setOnCancelListener(this);
+
+        mDialog.show();
+    }
+
+    private void initCustomViewData(View view, VersionBean data) {
+
+        if (null == view) return;
+        this.data = data;
+        TextView appName = view.findViewById(R.id.version_app_name);
+        TextView info = view.findViewById(R.id.version_message);
+        Button cancelBtn = view.findViewById(R.id.version_btn_cancel);
+        Button updateBtn = view.findViewById(R.id.version_btn_update);
+
+        String title = getAppName() + " " + data.getStrategyName();
+        appName.setText(title);
+        info.setText(data.getUpdateDesc());
+
+        if ("1".equals(data.getUpgradeStrategy())) {
+            cancelBtn.setEnabled(false);
+        } else {
+            cancelBtn.setOnClickListener(this);
+        }
+        updateBtn.setOnClickListener(this);
+    }
+
+    private String getAppName() {
+
+        return mAppName;
+    }
+
+    @Override
+    public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
+        return true;
+    }
+
+    @Override
+    public void onCancel(DialogInterface dialog) {
+
+    }
+
+    @Override
+    public void onClick(View v) {
+        if (debug) L.d(TAG, "onClick, ");
+        if (v.getId() == R.id.version_btn_cancel) {
+            if (!"1".equals(data.getUpgradeStrategy())) {
+                dismiss();
+            }
+        } else if (v.getId() == R.id.version_btn_update) {
+            update();
+        }
+    }
+
+    private void dismiss() {
+        if (debug) L.d(TAG, "dismiss, ");
+        try {
+            if (null != mDialog) {
+                mDialog.dismiss();
+            }
+        } catch (Exception ignored) {
+        }
+    }
+
+    private void update() {
+        if (debug) L.d(TAG, "update, ");
+        if (null == data) {
+            Toast.makeText(mContext, "Url is null, Error", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (!"1".equals(data.getUpgradeStrategy())) {
+            dismiss();
+        }
+
+        String url = data.getDownloadUrl();
+
+        if (isMarketUrl(url)) {
+            toMarket(url);
+        } else {
+            toBrowser(url);
+        }
+    }
+
+    private void toBrowser(String url) {
+        if (debug) L.d(TAG, "toBrowser, url = " + url);
+        try {
+            Intent intent = new Intent();
+            intent.setAction("android.intent.action.VIEW");
+            Uri content_url = Uri.parse(url);
+            intent.setData(content_url);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            mContext.startActivity(intent);
+        } catch (Exception ignored) {
+        }
+    }
+
+    private void toMarket(String url) {
+        if (debug) L.d(TAG, "toMarket, url = " + url);
+        try {
+            startGooglePlay(url);
+        } catch (Exception ignored) {
+        }
+    }
+
+    private boolean isMarketUrl(String url) {
+        if (debug) L.d(TAG, "isMarketUrl, url = " + url);
+        return null != url && url.startsWith("market://");
+    }
+
+    private void startGooglePlay(String url) {
+        Intent mIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+        boolean marketExist = false;
+        final List<ResolveInfo> otherApps = mContext.getPackageManager().queryIntentActivities(mIntent, 0);
+        for (ResolveInfo otherApp : otherApps) {
+            if (otherApp.activityInfo.applicationInfo.packageName.equals("com.android.vending")) {
+                ActivityInfo otherAppActivity = otherApp.activityInfo;
+                ComponentName componentName = new ComponentName(otherAppActivity.applicationInfo.packageName, otherAppActivity.name);
+                mIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                mIntent.setComponent(componentName);
+                mContext.startActivity(mIntent);
+                marketExist = true;
+                break;
+            }
+        }
+        if (!marketExist) {
+            Intent webIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=" + mContext.getPackageName()));
+            mContext.startActivity(webIntent);
+        }
+    }
+}
