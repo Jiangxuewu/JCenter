@@ -32,7 +32,7 @@ public class VersionApi implements IHttpCallback {
     private static final String SH_FILE_NAME = "DIDD_VERSION_SP_FILE";
     private static final long DAY_TIME = 24 * 60 * 60 * 1000;
     private static final String TAG = VersionApi.class.getSimpleName();
-    private static final boolean debug = true;
+    private static final boolean debug = false;
     private static VersionApi mInstance;
     static String versionHttpUrl;
     private SharedPreferences mSp;
@@ -197,8 +197,8 @@ public class VersionApi implements IHttpCallback {
     private void showUpdateMessage(VersionBean data) {
         if (null == data) {
             if (debug) L.d(TAG, "showUpdateMessage, data is null");
-            if (debug)
-                test();
+//            if (debug)
+//                test();
             return;
         }
 

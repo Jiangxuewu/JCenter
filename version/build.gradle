@@ -61,7 +61,7 @@ ext {
     siteUrl = 'https://github.com/Jiangxuewu/JCenter'          //把项目分享到github后的项目地址
     gitUrl = 'https://github.com/Jiangxuewu/JCenter.git'       //分享后的项目git地址
 
-    libraryVersion = '1.0.1'
+    libraryVersion = '1.0.2'
     developerId = 'org.didd.dev'                             //这个开发者id，自己写
     developerName = 'skycar'                           //这个是开发者名字
     developerEmail = 'dev@bb-sz.com'                    //开发者邮箱
