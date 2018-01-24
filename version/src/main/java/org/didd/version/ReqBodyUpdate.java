@@ -7,7 +7,7 @@ import android.support.annotation.Keep;
  */
 
 @Keep
-/*public*/ class ReqBodyUpdate {
+public class ReqBodyUpdate {
     public String packageName;
     public String cversion;
     public String channel;

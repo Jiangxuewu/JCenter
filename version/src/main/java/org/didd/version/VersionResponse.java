@@ -1,10 +1,12 @@
 package org.didd.version;
 
+import android.support.annotation.Keep;
+
 /**
  * Created by Jiangxuewu on 2018/1/23.
  */
-
-/*public*/ class VersionResponse {
+@Keep
+public class VersionResponse {
 
 
     /**

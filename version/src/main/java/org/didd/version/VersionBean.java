@@ -1,12 +1,14 @@
 package org.didd.version;
 
+import android.support.annotation.Keep;
+
 import java.io.Serializable;
 
 /**
  * Created by Jiangxuewu on 2018/1/23.
  */
-
-/*public*/ class VersionBean implements Serializable{
+@Keep
+public class VersionBean implements Serializable{
     /**
      * alertInterval : 0
      * alertTimes : 0

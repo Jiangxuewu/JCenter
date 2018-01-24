@@ -11,7 +11,7 @@ import org.didd.http.IHttpCallback;
  * Created by Jiangxuewu on 2018/1/23.
  */
 
-/*public*/ class NewVersionModel extends BaseModel {
+public class NewVersionModel extends BaseModel {
 
     private IHttpCallback callback;
 
