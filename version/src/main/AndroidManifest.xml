@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest package="com.transsnet.version">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.transsnet.version">
 
-    <application></application>
+    <application>
+        <activity
+            android:name="org.didd.version.VersionActivity"
+            android:configChanges="fontScale|layoutDirection|locale|mnc|mcc|orientation|keyboardHidden|screenSize|screenLayout|smallestScreenSize"
+            android:screenOrientation="portrait"
+            android:theme="@style/didd_modal_dialog" />
+    </application>
 
 </manifest>

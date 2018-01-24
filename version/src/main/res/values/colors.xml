@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="DiDdcolorPrimary">#3F51B5</color>
+    <color name="DiDdcolorPrimaryDark">#303F9F</color>
+    <color name="DiDdcolorAccent">#FF4081</color>
+
+
+    <color name="color_palmplay_white">#ffffff</color>
+    <color name="color_7e7e7e">#7e7e7e</color>
+    <color name="color_161616">#161616</color>
+
+
+    <color name="color_087cbc">#087cbc</color>
+    <color name="color_0a9beb">#0a9beb</color>
+
+</resources>

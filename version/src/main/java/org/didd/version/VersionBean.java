@@ -1,10 +1,12 @@
 package org.didd.version;
 
+import java.io.Serializable;
+
 /**
  * Created by Jiangxuewu on 2018/1/23.
  */
 
-/*public*/ class VersionBean {
+/*public*/ class VersionBean implements Serializable{
     /**
      * alertInterval : 0
      * alertTimes : 0
