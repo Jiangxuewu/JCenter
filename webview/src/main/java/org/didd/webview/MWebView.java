@@ -91,6 +91,11 @@ import android.webkit.WebViewClient;
 
 
         settings.setAllowFileAccess(true);
+        settings.setAllowContentAccess(false);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            settings.setAllowFileAccessFromFileURLs(false);
+            settings.setAllowUniversalAccessFromFileURLs(false);
+        }
 
 //		settings.setPluginsEnabled(true);
         settings.setLoadWithOverviewMode(true);
