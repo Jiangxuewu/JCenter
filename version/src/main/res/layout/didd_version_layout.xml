@@ -82,7 +82,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="40dp"
                 android:layout_marginBottom="24dp"
-                android:gravity="center_vertical"
+                android:gravity="center"
                 android:orientation="horizontal"
                 android:paddingLeft="1dp"
                 android:paddingRight="1dp">
@@ -101,10 +101,13 @@
                     android:gravity="center"
                     android:text="Cruel leave"
                     android:textAllCaps="false"
+                    android:visibility="visible"
                     android:textColor="@color/version_cancel_btn_col"
                     android:textSize="14sp" />
 
                 <View
+                    android:id="@+id/version_line_b"
+                    android:visibility="visible"
                     android:layout_width="16dp"
                     android:layout_height="1px" />
 

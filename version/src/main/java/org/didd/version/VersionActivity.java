@@ -12,7 +12,9 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -109,14 +111,24 @@ public class VersionActivity extends AppCompatActivity implements DialogInterfac
         String tip;
         if ("1".equals(data.getUpgradeStrategy())) {
             cancelBtn.setEnabled(false);
+            cancelBtn.setVisibility(View.GONE);
+            view.findViewById(R.id.version_line_b).setVisibility(View.GONE);
             tip = "Update";
             updateBtn.setText("");
+            int dp160 = dp2px(160);
+            ViewGroup.LayoutParams lp = new LinearLayout.LayoutParams(dp160, -1, 0.f);
+            updateBtn.setLayoutParams(lp);
         } else {
             cancelBtn.setOnClickListener(this);
             tip = "Try it now";
         }
         updateBtn.setText(tip);
         updateBtn.setOnClickListener(this);
+    }
+
+    private int dp2px(int values) {
+        float scale = mContext.getResources().getDisplayMetrics().density;
+        return (int) (values * scale + 0.5f);
     }
 
 
