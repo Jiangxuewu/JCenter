@@ -8,6 +8,7 @@ import android.os.Looper;
 import android.text.TextUtils;
 
 import com.google.gson.Gson;
+import com.transsnet.version.BuildConfig;
 
 import org.didd.common.log.L;
 import org.didd.http.BaseModel;
@@ -18,6 +19,7 @@ import org.didd.http.IHttpCallback;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.List;
 
 /**
  * Created by Jiangxuewu on 2018/1/23.
@@ -31,12 +33,13 @@ public class VersionApi implements IHttpCallback {
     private static final String SH_FILE_NAME = "DIDD_VERSION_SP_FILE";
     private static final long DAY_TIME = 24 * 60 * 60 * 1000;
     private static final String TAG = VersionApi.class.getSimpleName();
-    private static final boolean debug = false;
+    private static final String DB_NAME = "DIDD_VERSION_DB";
     private static VersionApi mInstance;
     static String versionHttpUrl;
     private SharedPreferences mSp;
     private Context mContext;
     private String mAppName;
+    static boolean mResumed = false;
 
     private boolean isRequesting;
 
@@ -54,10 +57,10 @@ public class VersionApi implements IHttpCallback {
 
     //first init
     public void init(Context context, String httpUrl, String appName, String channel, String version) {
-        if (debug) L.d(TAG, "init, httpUrl = " + httpUrl);
-        if (debug) L.d(TAG, "init, appName = " + appName);
-        if (debug) L.d(TAG, "init, channel = " + channel);
-        if (debug) L.d(TAG, "init, version = " + version);
+        if (BuildConfig.DEBUG) L.d(TAG, "init, httpUrl = " + httpUrl);
+        if (BuildConfig.DEBUG) L.d(TAG, "init, appName = " + appName);
+        if (BuildConfig.DEBUG) L.d(TAG, "init, channel = " + channel);
+        if (BuildConfig.DEBUG) L.d(TAG, "init, version = " + version);
         if (TextUtils.isEmpty(httpUrl) || null == context) return;
         // check local update data
         // get update data from server
@@ -65,6 +68,8 @@ public class VersionApi implements IHttpCallback {
         versionHttpUrl = httpUrl;
         mContext = context;
         mAppName = appName;
+
+        DB.getInstance().init(context, DB_NAME);
 
         mSp = context.getSharedPreferences(SH_FILE_NAME, Context.MODE_PRIVATE);
 
@@ -90,6 +95,9 @@ public class VersionApi implements IHttpCallback {
 
         BaseModel model = new NewVersionModel(data, this);
         HttpApi.getInstance().request(model);
+
+        checkLocalDB();
+
         isRequesting = true;
     }
 
@@ -102,6 +110,9 @@ public class VersionApi implements IHttpCallback {
     }
 
     private void showDialogInUI(final VersionBean data) {
+        if (mResumed) {
+            return;
+        }
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
@@ -136,9 +147,14 @@ public class VersionApi implements IHttpCallback {
     @Override
     public void result(HttpResponse httpResponse) {
         isRequesting = false;
-        if (debug)
+
+//        if (BuildConfig.DEBUG)
+//        test();
+
+        if (BuildConfig.DEBUG)
             L.d(TAG, "result, code = " + (null == httpResponse ? "null" : httpResponse.code));
         if (null == httpResponse || httpResponse.code < 200 || httpResponse.code >= 300) {
+//            checkLocalDB();
             return;
         }
 
@@ -149,12 +165,29 @@ public class VersionApi implements IHttpCallback {
             if (!TextUtils.isEmpty(str)) {
                 VersionResponse response = new Gson().fromJson(str, VersionResponse.class);
                 handleResult(response);
+                return;
             }
+        }
+//        checkLocalDB();
+    }
+
+    private void checkLocalDB() {
+        VersionBeanDao dao = getDao();
+
+        if (null == dao) {
+            return;
+        }
+
+        List<VersionBean> list = dao.queryBuilder().list();
+
+        if (null != list && !list.isEmpty()) {
+            VersionBean bean = list.get(0);
+            showUpdateMessage(bean);
         }
     }
 
     private void test() {
-        if (debug)
+        if (BuildConfig.DEBUG)
             L.d(TAG, "result, start test.....");
         VersionBean data = new VersionBean();
 //        data.setAlertTimes(21);
@@ -174,11 +207,11 @@ public class VersionApi implements IHttpCallback {
 
 
         data.setAlertTimes(21);
-        data.setAlertInterval(1);
+        data.setAlertInterval(0);
         data.setDownloadUrl("market://details?id=com.yomobigroup.yoweather");
         data.setStrategyName("V1.2.2");
         data.setUpdateDesc("1, Update 1...\n2, Update 2....\n3, Update 3.......3333\n4, Update 4444\n5, Update 555555");
-        data.setUpgradeStrategy("1");
+        data.setUpgradeStrategy("0");
 
         showUpdateMessage(data);
     }
@@ -195,21 +228,39 @@ public class VersionApi implements IHttpCallback {
 
     private void showUpdateMessage(VersionBean data) {
         if (null == data) {
-            if (debug) L.d(TAG, "showUpdateMessage, data is null");
-//            if (debug)
-//                test();
+            if (BuildConfig.DEBUG) L.d(TAG, "showUpdateMessage, data is null");
             return;
         }
 
+        saveToLocalDB(data);
+
         if (checkRight(data)) {
-            if (debug) L.d(TAG, "showUpdateMessage, checkRight = true");
+            if (BuildConfig.DEBUG) L.d(TAG, "showUpdateMessage, checkRight = true");
             showDialogInUI(data);
+        }
+    }
+
+    private VersionBeanDao getDao() {
+        DaoSession session = DB.getInstance().getDaoSession();
+        if (null == session) {
+            return null;
+        }
+        return session.getVersionBeanDao();
+    }
+
+    private void saveToLocalDB(VersionBean data) {
+        VersionBeanDao dao = getDao();
+
+        if (null != dao) {
+            dao.deleteAll();
+
+            dao.insert(data);
         }
     }
 
     private boolean checkRight(VersionBean data) {
         if (null == data) {
-            if (debug) L.d(TAG, "checkRight, checkRight = false, data is null");
+            if (BuildConfig.DEBUG) L.d(TAG, "checkRight, checkRight = false, data is null");
             return false;
         }
         //get sp file key
@@ -221,16 +272,16 @@ public class VersionApi implements IHttpCallback {
         //compare alert total times
         if (data.getAlertTimes() >= 0 && data.getAlertTimes() <= totalAlertTimes) {
 
-            if (debug) L.d(TAG, "checkRight, checkRight = false, total times");
+            if (BuildConfig.DEBUG) L.d(TAG, "checkRight, checkRight = false, total times");
             return false;
         }
 
         //compare last alert time
         if (data.getAlertInterval() >= 0 && System.currentTimeMillis() - lastAlertTime <= data.getAlertInterval() * DAY_TIME) {
-            if (debug) L.d(TAG, "checkRight, checkRight = false, alert interval");
+            if (BuildConfig.DEBUG) L.d(TAG, "checkRight, checkRight = false, alert interval");
             return false;
         }
-        if (debug) L.d(TAG, "checkRight, checkRight = true");
+        if (BuildConfig.DEBUG) L.d(TAG, "checkRight, checkRight = true");
         return true;
     }
 

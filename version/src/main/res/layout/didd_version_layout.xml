@@ -120,7 +120,7 @@
                     android:focusable="true"
                     android:fontFamily="sans-serif"
                     android:gravity="center"
-                    android:text="Try it now"
+                    android:text="Update"
                     android:textAllCaps="false"
                     android:textColor="@color/version_update_btn_col"
                     android:textSize="14sp" />

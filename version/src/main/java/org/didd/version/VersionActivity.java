@@ -41,6 +41,18 @@ public class VersionActivity extends AppCompatActivity implements DialogInterfac
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        VersionApi.mResumed = true;
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        VersionApi.mResumed = false;
+    }
+
+    @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         handleIntent(getIntent());
@@ -94,12 +106,16 @@ public class VersionActivity extends AppCompatActivity implements DialogInterfac
         String title = getAppName() + " " + data.getStrategyName();
         appName.setText(title);
         info.setText(data.getUpdateDesc());
-
+        String tip;
         if ("1".equals(data.getUpgradeStrategy())) {
             cancelBtn.setEnabled(false);
+            tip = "Update";
+            updateBtn.setText("");
         } else {
             cancelBtn.setOnClickListener(this);
+            tip = "Try it now";
         }
+        updateBtn.setText(tip);
         updateBtn.setOnClickListener(this);
     }
 

@@ -8,7 +8,7 @@ import java.io.Serializable;
  * Created by Jiangxuewu on 2018/1/23.
  */
 @Keep
-public class VersionBean implements Serializable{
+public class VersionBean implements Serializable {
     /**
      * alertInterval : 0
      * alertTimes : 0
@@ -41,11 +41,38 @@ public class VersionBean implements Serializable{
     private String publishVersion;
     private int startFlag;
     private String startTime;
-    private Object stopTime;
+    private String stopTime;
     private String strategyName;
     private String updateDesc;
     private int upgradeChennel;
     private String upgradeStrategy;
+
+    public VersionBean(int alertInterval, int alertTimes, String createTime,
+                       int dataState, String downloadUrl, String id, String lowerVersion,
+                       int netType, String packageName, String publishVersion, int startFlag,
+                       String startTime, String stopTime, String strategyName,
+                       String updateDesc, int upgradeChennel, String upgradeStrategy) {
+        this.alertInterval = alertInterval;
+        this.alertTimes = alertTimes;
+        this.createTime = createTime;
+        this.dataState = dataState;
+        this.downloadUrl = downloadUrl;
+        this.id = id;
+        this.lowerVersion = lowerVersion;
+        this.netType = netType;
+        this.packageName = packageName;
+        this.publishVersion = publishVersion;
+        this.startFlag = startFlag;
+        this.startTime = startTime;
+        this.stopTime = stopTime;
+        this.strategyName = strategyName;
+        this.updateDesc = updateDesc;
+        this.upgradeChennel = upgradeChennel;
+        this.upgradeStrategy = upgradeStrategy;
+    }
+
+    public VersionBean() {
+    }
 
     public int getAlertInterval() {
         return alertInterval;
@@ -143,11 +170,11 @@ public class VersionBean implements Serializable{
         this.startTime = startTime;
     }
 
-    public Object getStopTime() {
+    public String getStopTime() {
         return stopTime;
     }
 
-    public void setStopTime(Object stopTime) {
+    public void setStopTime(String stopTime) {
         this.stopTime = stopTime;
     }
 

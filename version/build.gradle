@@ -35,6 +35,8 @@ dependencies {
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
 //    application project(':app')
 
+    //greendao
+    compile 'org.greenrobot:greendao:3.0.1'
 
     compile 'com.google.code.gson:gson:2.6.2'
 
@@ -42,8 +44,6 @@ dependencies {
     compile 'org.didd.dev:http:1.0.0'
 
 }
-
-
 
 //gradlew install
 //gradlew bintrayUpload
@@ -54,14 +54,15 @@ ext {
 
     publishedGroupId = 'org.didd.dev'                //GroupId,这个要别人引用的时候会用到，
     libraryName = 'version'                         //这个是项目名字
-    artifact = 'version'                                   //artifactId，这个也是别人引用的时候，会用到，它要和Module名字一样
+    artifact = 'version'
+    //artifactId，这个也是别人引用的时候，会用到，它要和Module名字一样
 
-    libraryDescription = 'Dev update Utils'       //项目描述
+    libraryDescription = 'Dev update Utils, need greendao, com.google.code.gson:gson:2.6.2, common, http'       //项目描述
 
     siteUrl = 'https://github.com/Jiangxuewu/JCenter'          //把项目分享到github后的项目地址
     gitUrl = 'https://github.com/Jiangxuewu/JCenter.git'       //分享后的项目git地址
 
-    libraryVersion = '1.0.3'
+    libraryVersion = '1.0.4'
     developerId = 'org.didd.dev'                             //这个开发者id，自己写
     developerName = 'skycar'                           //这个是开发者名字
     developerEmail = 'dev@bb-sz.com'                    //开发者邮箱
