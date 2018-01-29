@@ -32,7 +32,7 @@ public class DaoMaster extends AbstractDaoMaster {
 
     /**
      * WARNING: Drops all table on Upgrade! Use only during development.
-     * Convenience method using a {@link DevOpenHelper}.
+     * Convenience method using a { DevOpenHelper}.
      */
     public static DaoSession newDevSession(Context context, String name) {
         Database db = new DevOpenHelper(context, name).getWritableDb();
@@ -58,7 +58,7 @@ public class DaoMaster extends AbstractDaoMaster {
     }
 
     /**
-     * Calls {@link #createAllTables(Database, boolean)} in {@link #onCreate(Database)} -
+     * Calls { #createAllTables(Database, boolean)} in { #onCreate(Database)} -
      */
     public static abstract class OpenHelper extends DatabaseOpenHelper {
         public OpenHelper(Context context, String name) {

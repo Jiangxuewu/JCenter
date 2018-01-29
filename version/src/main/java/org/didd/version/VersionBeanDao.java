@@ -19,7 +19,7 @@ public class VersionBeanDao extends AbstractDao<VersionBean, Void> {
     public static final String TABLENAME = "VERSION_BEAN";
 
     /**
-     * Properties of entity VersionBean.<br/>
+     * Properties of entity VersionBean.
      * Can be used for QueryBuilder and for referencing column names.
     */
     public static class Properties {
