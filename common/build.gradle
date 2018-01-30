@@ -39,12 +39,12 @@ ext {
     libraryName = 'common'                         //这个是项目名字
     artifact = 'common'                                   //artifactId，这个也是别人引用的时候，会用到，它要和Module名字一样
 
-    libraryDescription = 'Dev Common Utils'       //项目描述
+    libraryDescription = 'Dev Common Utils, need permission ACCESS_NETWORK_STATE'       //项目描述
 
     siteUrl = 'https://github.com/Jiangxuewu/JCenter'          //把项目分享到github后的项目地址
     gitUrl = 'https://github.com/Jiangxuewu/JCenter.git'       //分享后的项目git地址
 
-    libraryVersion = '1.0.2'
+    libraryVersion = '1.0.3'
     developerId = 'org.didd.dev'                             //这个开发者id，自己写
     developerName = 'skycar'                           //这个是开发者名字
     developerEmail = 'dev@bb-sz.com'                    //开发者邮箱
