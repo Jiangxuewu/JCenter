@@ -38,7 +38,7 @@ dependencies {
     //greendao
     compile 'org.greenrobot:greendao:3.0.1'
 
-    compile 'com.google.code.gson:gson:2.6.2'
+    compile 'com.google.code.gson:gson:2.8.0'
 
     compile 'org.didd.dev:common:1.0.3'
     compile 'org.didd.dev:http:1.0.0'
