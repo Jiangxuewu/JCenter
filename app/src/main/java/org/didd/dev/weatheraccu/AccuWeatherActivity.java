@@ -5,21 +5,20 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.widget.TextView;
 
-import com.bbsz.mlibrary.permissions.PermissionUtil;
 import com.google.gson.Gson;
 
-import org.didd.common.L;
+import org.didd.common.log.L;
+import org.didd.common.permission.PermissionUtil;
+import org.didd.dev.BuildConfig;
 import org.didd.dev.R;
 import org.didd.dev.service.MyLocation;
 import org.didd.dev.service.MyLocationService;
-import org.didd.dev.weatheraccu.data.AccuLocationData;
 import org.didd.dev.weatheraccu.response.AccuLocationBean;
 import org.didd.http.HttpResponse;
 import org.didd.http.IHttpCallback;
@@ -34,7 +33,7 @@ public class AccuWeatherActivity extends AppCompatActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            if (L.debug) L.i(TAG, "action:" + action);
+            if (BuildConfig.DEBUG) L.i(TAG, "action:" + action);
             if (MyLocationService.ACTION_LOCATION_UPDATE.equals(action)) {
                 Serializable data = intent.getSerializableExtra(MyLocationService.KEY_LOCATION_UPDATE);
 
@@ -62,10 +61,10 @@ public class AccuWeatherActivity extends AppCompatActivity {
             }
 
             @Override
-            public void requestPermissionFailed() {
-                stopLocationService();
+            public void requestPermissionFailed(boolean isTip, String permission) {
 
             }
+
         });
 
         registerLocationReceiver();
@@ -97,11 +96,11 @@ public class AccuWeatherActivity extends AppCompatActivity {
 
     private void stopLocationService() {
 //        stopService()
-        if (L.debug) L.i(TAG, "stopLocationService");
+        if (BuildConfig.DEBUG) L.i(TAG, "stopLocationService");
     }
 
     private void startLocationService() {
-        if (L.debug) L.i(TAG, "startLocationService");
+        if (BuildConfig.DEBUG) L.i(TAG, "startLocationService");
         startService(new Intent(this, MyLocationService.class));
     }
 
@@ -109,7 +108,7 @@ public class AccuWeatherActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (null != permissionUtil)
-            permissionUtil.onRequestPermissionsResult(requestCode, permissions, grantResults);
+            permissionUtil.onRequestPermissionsResult(this, requestCode, permissions, grantResults);
     }
 
 
@@ -127,7 +126,8 @@ public class AccuWeatherActivity extends AppCompatActivity {
 
     private void updateWeather(MyLocation data) {
 
-        if (L.debug) L.i(TAG, "updateWeather:" + (null == data ? "null" : new Gson().toJson(data)));
+        if (BuildConfig.DEBUG)
+            L.i(TAG, "updateWeather:" + (null == data ? "null" : new Gson().toJson(data)));
 
         AccuWeatherApi api = new AccuWeatherApi();
 
@@ -138,7 +138,7 @@ public class AccuWeatherActivity extends AppCompatActivity {
                 AccuLocationBean bean = AccuWeatherApi.parseJsonToObject(httpResponse, AccuLocationBean.class);
                 if (null != bean) {
                     updateUI(bean);
-                    if (L.debug) {
+                    if (BuildConfig.DEBUG) {
                         L.d(TAG, "bean:" + new Gson().toJson(bean));
                     }
                 }

@@ -3,7 +3,8 @@ package org.didd.dev.weather.httpx;
 import android.os.Build;
 import android.text.TextUtils;
 
-import org.didd.common.L;
+import org.didd.common.log.L;
+import org.didd.dev.BuildConfig;
 import org.didd.http.BaseModel;
 import org.didd.http.Http;
 import org.didd.http.HttpEntry;
@@ -56,7 +57,7 @@ public class WeatherBaseModel extends BaseModel {
                 String str = body.getString();
                 if (!TextUtils.isEmpty(str)) {
                     String res = CodeX.decode(str);
-                    if (L.debug) {
+                    if (BuildConfig.DEBUG) {
                         L.i("Test", "res = " + res);
                     }
                     return res;

@@ -13,12 +13,12 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
-import android.widget.ListAdapter;
 import android.widget.TextView;
 
-import com.bbsz.mlibrary.permissions.PermissionUtil;
 
+import org.didd.common.permission.PermissionUtil;
 import org.didd.dev.accessibility.weather.WeatherTestActivity;
+import org.didd.dev.scheme.SchemeActivity;
 import org.didd.dev.template.BaseActivity;
 import org.didd.dev.template.ItemListActivity;
 import org.didd.dev.template.LoginActivity;
@@ -26,14 +26,18 @@ import org.didd.dev.template.NavigationDrawerActivity;
 import org.didd.dev.template.ScrollingActivity;
 import org.didd.dev.template.SettingsActivity;
 import org.didd.dev.template.TabbedMainActivity;
+import org.didd.dev.version.VersionActivity;
 import org.didd.dev.weather.WeatherActivity;
 import org.didd.dev.weatheraccu.AccuWeatherActivity;
+import org.didd.dev.webview.WebActivity;
+import org.didd.version.VersionApi;
 
 public class LauncherActivity extends AppCompatActivity {
 
     private static Class<?>[] cls = new Class<?>[]{BaseActivity.class, LoginActivity.class, ItemListActivity.class,
             NavigationDrawerActivity.class, ScrollingActivity.class, SettingsActivity.class, TabbedMainActivity.class,
-            GoogleAdMobActivity.class, WeatherActivity.class, AccuWeatherActivity.class, WeatherTestActivity.class};
+            GoogleAdMobActivity.class, WeatherActivity.class, AccuWeatherActivity.class, WeatherTestActivity.class,
+            WebActivity.class, SchemeActivity.class, VersionActivity.class};
 
     private PermissionUtil permissionUtil;
 
@@ -55,6 +59,12 @@ public class LauncherActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent intent = new Intent(LauncherActivity.this, cls[position]);
                 LauncherActivity.this.startActivity(intent);
+
+
+                String appName = getResources().getString(R.string.app_name);
+                String httpUrl = "http://test-yogame.palmplaystore.com/api/upGrade/upGradeManage/checkUpGrade";
+                VersionApi.getInstance().init(LauncherActivity.this, httpUrl, appName, "google", BuildConfig.VERSION_NAME, true);
+
             }
         });
 
@@ -68,7 +78,7 @@ public class LauncherActivity extends AppCompatActivity {
             }
 
             @Override
-            public void requestPermissionFailed() {
+            public void requestPermissionFailed(boolean isTip, String permission) {
 
             }
         });
@@ -79,7 +89,7 @@ public class LauncherActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (null != permissions)
-            permissionUtil.onRequestPermissionsResult(requestCode, permissions, grantResults);
+            permissionUtil.onRequestPermissionsResult(this,requestCode, permissions, grantResults);
     }
 
     class MainAdapter extends BaseAdapter {

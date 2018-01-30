@@ -13,7 +13,8 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.ActivityCompat;
 
-import org.didd.common.L;
+import org.didd.common.log.L;
+import org.didd.dev.BuildConfig;
 import org.didd.dev.service.MyLocation;
 
 import java.util.List;
@@ -67,14 +68,14 @@ public class AccuLocationService extends Service implements LocationListener {
     }
 
     private void starLocation() {
-        if (L.debug) L.i(TAG, "starLocation, locationType = " + locationType);
+        if (BuildConfig.DEBUG) L.i(TAG, "starLocation, locationType = " + locationType);
         if (null == locationManager) initLocationManager();
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
             //request permission
-            if (L.debug) L.i(TAG, "starLocation, permission disabled");
+            if (BuildConfig.DEBUG) L.i(TAG, "starLocation, permission disabled");
             return;
         }
 
@@ -89,7 +90,7 @@ public class AccuLocationService extends Service implements LocationListener {
     }
 
     private Location getLastKnownLocation() {
-        if (L.debug) L.i(TAG, "getLastKnownLocation, locationType = " + locationType);
+        if (BuildConfig.DEBUG) L.i(TAG, "getLastKnownLocation, locationType = " + locationType);
         if (null == locationManager) return null;
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
@@ -102,7 +103,7 @@ public class AccuLocationService extends Service implements LocationListener {
         List<String> providers = locationManager.getProviders(true);
         Location bestLocation = null;
         for (String provider : providers) {
-            if (L.debug) L.i(TAG, "getLastKnownLocation, provider = " + provider);
+            if (BuildConfig.DEBUG) L.i(TAG, "getLastKnownLocation, provider = " + provider);
             Location l = locationManager.getLastKnownLocation(provider);
             if (l == null) {
                 continue;
@@ -110,7 +111,7 @@ public class AccuLocationService extends Service implements LocationListener {
             if (bestLocation == null || l.getAccuracy() < bestLocation.getAccuracy()) {
                 // Found best last known location: %s", l);
                 bestLocation = l;
-                if (L.debug) L.i(TAG, "getLastKnownLocation, best provider = " + provider);
+                if (BuildConfig.DEBUG) L.i(TAG, "getLastKnownLocation, best provider = " + provider);
             }
         }
         return bestLocation;
@@ -121,7 +122,7 @@ public class AccuLocationService extends Service implements LocationListener {
     }
 
     private void updateLocation(Location location) {
-        if (L.debug) L.i(TAG, "updateLocation");
+        if (BuildConfig.DEBUG) L.i(TAG, "updateLocation");
         MyLocation accuLocation = new MyLocation(location.getAltitude(), location.getLongitude(), location.getLatitude(), location.getTime());
         Intent intent = new Intent(ACTION_LOCATION_UPDATE);
         intent.putExtra(KEY_LOCATION_UPDATE, accuLocation);
@@ -131,13 +132,13 @@ public class AccuLocationService extends Service implements LocationListener {
 
     @Override
     public void onLocationChanged(Location location) {
-        if (L.debug) L.i(TAG, "onLocationChanged");
+        if (BuildConfig.DEBUG) L.i(TAG, "onLocationChanged");
         updateLocation(location);
     }
 
     @Override
     public void onStatusChanged(String s, int status, Bundle bundle) {
-        if (L.debug) L.i(TAG, "onStatusChanged, status = " + status);
+        if (BuildConfig.DEBUG) L.i(TAG, "onStatusChanged, status = " + status);
         switch (status) {
             case LocationProvider.AVAILABLE:
                 break;
@@ -152,14 +153,14 @@ public class AccuLocationService extends Service implements LocationListener {
 
     @Override
     public void onProviderEnabled(String provider) {
-        if (L.debug) L.i(TAG, "onProviderEnabled, provider = " + provider);
+        if (BuildConfig.DEBUG) L.i(TAG, "onProviderEnabled, provider = " + provider);
         starLocation();
 
     }
 
     @Override
     public void onProviderDisabled(String provider) {
-        if (L.debug) L.i(TAG, "onProviderDisabled, provider = " + provider);
+        if (BuildConfig.DEBUG) L.i(TAG, "onProviderDisabled, provider = " + provider);
         stopLocation();
     }
 

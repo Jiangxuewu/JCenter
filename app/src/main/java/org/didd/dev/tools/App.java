@@ -4,13 +4,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
-import android.os.Build;
-import android.support.v4.content.FileProvider;
 import android.text.TextUtils;
 
 import org.didd.common.BuildConfig;
-import org.didd.common.L;
-import org.didd.dev.accessibility.weather.WeatherTestActivity;
+import org.didd.common.log.L;
 
 import java.io.File;
 

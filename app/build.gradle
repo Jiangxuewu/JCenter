@@ -2,6 +2,16 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 26
+
+    signingConfigs {
+        debugKey {
+            keyAlias 'test'
+            keyPassword 'aaa123'
+            storeFile file('./doc//test.jks')
+            storePassword 'aaa123'
+        }
+    }
+
     defaultConfig {
         applicationId "org.didd.dev"
         minSdkVersion 16
@@ -32,9 +42,14 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
 
-//    compile 'org.didd.dev:fzhelper:1.0.1'
-    compile 'com.bbsz.sky:WebViewUI:1.0.3'
-    compile project(':http')
-    compile project(':common')
-    compile project(':fzhelper')
+//    compile project(':http')
+    compile 'com.google.code.gson:gson:2.8.0'
+//    compile project(':fzhelper')
+//    compile project(':version')
+    compile 'org.didd.dev:accessibilityutils:1.0.0'
+    compile 'org.didd.dev:common:1.0.3'
+    compile 'org.didd.dev:scheme:1.0.1'
+    compile 'org.didd.dev:http:1.0.0'
+    compile 'org.didd.dev:webview:1.0.2'
+    compile 'org.didd.dev:version:1.0.9'
 }

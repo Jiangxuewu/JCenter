@@ -5,7 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 
 import org.didd.common.BuildConfig;
-import org.didd.common.L;
+import org.didd.common.log.L;
 
 public class InstallReceiver extends BroadcastReceiver {
 

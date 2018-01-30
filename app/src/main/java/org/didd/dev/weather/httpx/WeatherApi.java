@@ -4,7 +4,8 @@ import android.text.TextUtils;
 
 import com.google.gson.Gson;
 
-import org.didd.common.L;
+import org.didd.common.log.L;
+import org.didd.dev.BuildConfig;
 import org.didd.dev.weather.httpx.response.AddressFromNet;
 import org.didd.dev.weather.httpx.response.weather.WeatherBean;
 import org.didd.http.BaseModel;
@@ -47,6 +48,7 @@ public class WeatherApi {
 
     /**
      * 根据网络ip，获取用户当前位置。
+     *
      * @param apiKey
      */
     public void getAddressFromNet(String apiKey) {
@@ -64,6 +66,7 @@ public class WeatherApi {
 
     /**
      * 根据经纬度获取天气信息
+     *
      * @param lat
      * @param lon
      */
@@ -72,7 +75,7 @@ public class WeatherApi {
             @Override
             public void result(HttpResponse httpResponse) {
                 String res = WeatherBaseModel.parseWeatherResponse(httpResponse);
-                if (!TextUtils.isEmpty(res)){
+                if (!TextUtils.isEmpty(res)) {
                     WeatherBean weatherBean = new Gson().fromJson(res, WeatherBean.class);
 
                 }
@@ -84,11 +87,12 @@ public class WeatherApi {
 
     /**
      * 根据经纬度以及时间获取天气预报信息
+     *
      * @param lat
      * @param lon
      * @param time
      */
-    public void getWeather(double lat, double lon, long time){
+    public void getWeather(double lat, double lon, long time) {
         BaseModel weather = new WeatherBaseModel("", getWeatherParams(lat, lon, time), new IHttpCallback() {
             @Override
             public void result(HttpResponse httpResponse) {
@@ -101,9 +105,10 @@ public class WeatherApi {
 
     /**
      * 搜索城市天气信息
+     *
      * @param city
      */
-    public void searchCity(String city){
+    public void searchCity(String city) {
         BaseModel searchCity = new WeatherBaseModel("", getSearchCityParams(city), new IHttpCallback() {
             @Override
             public void result(HttpResponse httpResponse) {
@@ -116,10 +121,11 @@ public class WeatherApi {
 
     /**
      * 根据gps定位的经纬度获取用户当前位置的天气信息
+     *
      * @param lat
      * @param lon
      */
-    public void getAddressFromLatLng(double lat, double lon){
+    public void getAddressFromLatLng(double lat, double lon) {
         BaseModel latlngAddress = new WeatherBaseModel("", getAddressFromLatLngParams(lat, lon), new IHttpCallback() {
             @Override
             public void result(HttpResponse httpResponse) {
@@ -136,7 +142,7 @@ public class WeatherApi {
         sb.append("type=1");
         sb.append("&app_id=").append("com.graph.weather.forecast.channel");
         sb.append("&request=https://ipfind.co/me?auth=TOH_KEY");
-        if (L.debug) L.d("test", "" + sb.toString());
+        if (BuildConfig.DEBUG) L.d("test", "" + sb.toString());
         return CodeX.encode(sb.toString());
     }
 
@@ -150,7 +156,7 @@ public class WeatherApi {
         paramSb.append("&app_id=").append("com.graph.weather.forecast.channel");
         paramSb.append("&request=https://api.forecast.io/forecast/TOH_KEY/");
         paramSb.append(lat).append(",").append(lon);
-        if (L.debug) L.d("test", "" + paramSb.toString());
+        if (BuildConfig.DEBUG) L.d("test", "" + paramSb.toString());
         return CodeX.encode(paramSb.toString());
     }
 
@@ -161,19 +167,19 @@ public class WeatherApi {
         paramSb.append("&request=https://api.forecast.io/forecast/TOH_KEY/");
         paramSb.append(lat).append(",").append(lon);
         paramSb.append(",").append(time);
-        if (L.debug) L.d("Test", "" + paramSb.toString());
+        if (BuildConfig.DEBUG) L.d("Test", "" + paramSb.toString());
         return CodeX.encode(paramSb.toString()).trim();
     }
 
 
-    private String getSearchCityParams(String city){
+    private String getSearchCityParams(String city) {
         StringBuilder paramSb = new StringBuilder("version=1&");
         paramSb.append("type=4");
         paramSb.append("&app_id=").append("com.graph.weather.forecast.channel");
         paramSb.append("&request=https://maps.googleapis.com/maps/api/geocode/json?");
         paramSb.append("address=").append(CodeX.f(city));
         paramSb.append("&key=TOH_KEY");
-        if (L.debug) L.d("test", "" + paramSb.toString());
+        if (BuildConfig.DEBUG) L.d("test", "" + paramSb.toString());
         return CodeX.encode(paramSb.toString());
     }
 

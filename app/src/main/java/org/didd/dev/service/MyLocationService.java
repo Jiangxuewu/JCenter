@@ -15,7 +15,7 @@ import android.support.v4.app.ActivityCompat;
 import android.text.TextUtils;
 
 import org.didd.common.BuildConfig;
-import org.didd.common.L;
+import org.didd.common.log.L;
 import org.didd.common.sp.SPPro;
 
 import java.util.List;
