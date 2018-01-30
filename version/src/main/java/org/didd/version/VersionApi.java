@@ -1,14 +1,28 @@
 package org.didd.version;
 
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
+import android.content.pm.ResolveInfo;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
+import android.view.KeyEvent;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.transsnet.version.BuildConfig;
+import com.transsnet.version.R;
 
 import org.didd.common.log.L;
 import org.didd.http.BaseModel;
@@ -16,6 +30,7 @@ import org.didd.http.HttpApi;
 import org.didd.http.HttpResponse;
 import org.didd.http.HttpResponseBody;
 import org.didd.http.IHttpCallback;
+import org.didd.common.network.NetUtil;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -27,7 +42,7 @@ import java.util.List;
  * <p>Show update dialog</p>
  */
 
-public class VersionApi implements IHttpCallback {
+public class VersionApi implements IHttpCallback, View.OnClickListener, DialogInterface.OnKeyListener, DialogInterface.OnCancelListener {
 
     private static final Object LOCK = new Object();
     private static final String SH_FILE_NAME = "DIDD_VERSION_SP_FILE";
@@ -42,6 +57,7 @@ public class VersionApi implements IHttpCallback {
     static boolean mResumed = false;
 
     private boolean isRequesting;
+    private boolean isDialog = false;
 
     public static VersionApi getInstance() {
         synchronized (LOCK) {
@@ -57,6 +73,10 @@ public class VersionApi implements IHttpCallback {
 
     //first init
     public void init(Context context, String httpUrl, String appName, String channel, String version) {
+        init(context, httpUrl, appName, channel, version, true);
+    }
+
+    public void init(Context context, String httpUrl, String appName, String channel, String version, boolean isDialog) {
         if (BuildConfig.DEBUG) L.d(TAG, "init, httpUrl = " + httpUrl);
         if (BuildConfig.DEBUG) L.d(TAG, "init, appName = " + appName);
         if (BuildConfig.DEBUG) L.d(TAG, "init, channel = " + channel);
@@ -68,6 +88,7 @@ public class VersionApi implements IHttpCallback {
         versionHttpUrl = httpUrl;
         mContext = context;
         mAppName = appName;
+        this.isDialog = isDialog;
 
         DB.getInstance().init(context, DB_NAME);
 
@@ -84,6 +105,11 @@ public class VersionApi implements IHttpCallback {
         bodyUpdate.packageName = mContext.getPackageName();
         bodyUpdate.cversion = version;
         bodyUpdate.channel = channel;
+        bodyUpdate.netType = getNetTypeForServer();
+
+        bodyUpdate.packageName = "com.yomobigroup.yoweather";
+        bodyUpdate.cversion = "1.2.0";
+        bodyUpdate.channel = "palmstore";
 
         ReqHead head = new ReqHead();
 
@@ -101,12 +127,27 @@ public class VersionApi implements IHttpCallback {
         isRequesting = true;
     }
 
+    private String getNetTypeForServer() {
+        int net = NetUtil.getNetworkState(mContext);
+        switch (net) {
+            case NetUtil.NETWORN_MOBILE:
+                return "3";
+            case NetUtil.NETWORN_WIFI:
+                return "2";
+            case NetUtil.NETWORN_NONE:
+            default:
+                return "1";
+        }
+    }
+
 
     private String getHeadSign(ReqBodyUpdate bodyUpdate) {
         if (null == bodyUpdate) return null;
         return md5Of32("channel=" + bodyUpdate.channel
                 + "&cversion=" + bodyUpdate.cversion
-                + "&packageName=" + bodyUpdate.packageName);
+                + "&packageName=" + bodyUpdate.packageName
+                + "&netType=" + bodyUpdate.netType
+        );
     }
 
     private void showDialogInUI(final VersionBean data) {
@@ -126,11 +167,15 @@ public class VersionApi implements IHttpCallback {
     }
 
     private void toShowAct(VersionBean data) {
-        Intent intent = new Intent(mContext, VersionActivity.class);
-        intent.putExtra("appName", mAppName);
-        intent.putExtra("versionBean", data);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        mContext.startActivity(intent);
+        if (isDialog) {
+            showDialog(data);
+        } else {
+            Intent intent = new Intent(mContext, VersionActivity.class);
+            intent.putExtra("appName", mAppName);
+            intent.putExtra("versionBean", data);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            mContext.startActivity(intent);
+        }
     }
 
     private void saveCount(VersionBean data) {
@@ -154,7 +199,6 @@ public class VersionApi implements IHttpCallback {
         if (BuildConfig.DEBUG)
             L.d(TAG, "result, code = " + (null == httpResponse ? "null" : httpResponse.code));
         if (null == httpResponse || httpResponse.code < 200 || httpResponse.code >= 300) {
-//            checkLocalDB();
             return;
         }
 
@@ -168,7 +212,6 @@ public class VersionApi implements IHttpCallback {
                 return;
             }
         }
-//        checkLocalDB();
     }
 
     private void checkLocalDB() {
@@ -229,6 +272,7 @@ public class VersionApi implements IHttpCallback {
     private void showUpdateMessage(VersionBean data) {
         if (null == data) {
             if (BuildConfig.DEBUG) L.d(TAG, "showUpdateMessage, data is null");
+            saveToLocalDB(null);
             return;
         }
 
@@ -250,11 +294,11 @@ public class VersionApi implements IHttpCallback {
 
     private void saveToLocalDB(VersionBean data) {
         VersionBeanDao dao = getDao();
-
         if (null != dao) {
             dao.deleteAll();
-
-            dao.insert(data);
+            if (null != data) {
+                dao.insert(data);
+            }
         }
     }
 
@@ -263,6 +307,7 @@ public class VersionApi implements IHttpCallback {
             if (BuildConfig.DEBUG) L.d(TAG, "checkRight, checkRight = false, data is null");
             return false;
         }
+
         //get sp file key
         String spKey = getSPKey(data.getStrategyName());
         //get alert times
@@ -282,7 +327,26 @@ public class VersionApi implements IHttpCallback {
             return false;
         }
         if (BuildConfig.DEBUG) L.d(TAG, "checkRight, checkRight = true");
-        return true;
+
+        //check net
+        return isRightNet(data.getNetType());
+    }
+
+    private boolean isRightNet(int netType) {
+        int net = NetUtil.getNetworkState(mContext);
+        if (BuildConfig.DEBUG) {
+            L.d(TAG, "isRightNet, net = " + net + ", netType = " + netType);
+        }
+        switch (netType) {
+            case 1:
+                return net == NetUtil.NETWORN_NONE;
+            case 2:
+                return net == NetUtil.NETWORN_WIFI;
+            case 3:
+                return net == NetUtil.NETWORN_MOBILE;
+            default:
+                return true;
+        }
     }
 
     private long getLongFromSp(String key) {
@@ -334,4 +398,168 @@ public class VersionApi implements IHttpCallback {
     }
 
 
+    ////////////////dialog/////////////////////
+    private AlertDialog mDialog;
+    private VersionBean data;
+
+    private void showDialog(VersionBean data) {
+        if (null != mDialog && mDialog.isShowing()) {
+            return;
+        }
+        AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+
+        View customView = View.inflate(mContext, R.layout.didd_version_layout, null);
+
+        initCustomViewData(customView, data);
+
+        builder.setView(customView);
+
+        mDialog = builder.create();
+
+        mDialog.setCanceledOnTouchOutside(false);
+        mDialog.setOnKeyListener(this);
+        mDialog.setOnCancelListener(this);
+
+        mDialog.show();
+    }
+
+    private void initCustomViewData(View view, VersionBean data) {
+
+        if (null == view) return;
+        this.data = data;
+        TextView appName = view.findViewById(R.id.version_app_name);
+        TextView info = view.findViewById(R.id.version_message);
+        Button cancelBtn = view.findViewById(R.id.version_btn_cancel);
+        Button updateBtn = view.findViewById(R.id.version_btn_update);
+
+        String title = getAppName() + " " + data.getStrategyName();
+        appName.setText(title);
+        info.setText(data.getUpdateDesc());
+        String tip;
+        if ("1".equals(data.getUpgradeStrategy())) {
+            cancelBtn.setEnabled(false);
+            cancelBtn.setVisibility(View.GONE);
+            view.findViewById(R.id.version_line_b).setVisibility(View.GONE);
+            tip = "Update";
+            updateBtn.setText("");
+            int dp160 = dp2px(160);
+            ViewGroup.LayoutParams lp = new LinearLayout.LayoutParams(dp160, -1, 0.f);
+            updateBtn.setLayoutParams(lp);
+        } else {
+            cancelBtn.setOnClickListener(this);
+            tip = "Try it now";
+        }
+        updateBtn.setText(tip);
+        updateBtn.setOnClickListener(this);
+    }
+
+    private String getAppName() {
+
+        return mAppName;
+    }
+
+    private int dp2px(int values) {
+        float scale = mContext.getResources().getDisplayMetrics().density;
+        return (int) (values * scale + 0.5f);
+    }
+
+    @Override
+    public void onClick(View v) {
+        if (BuildConfig.DEBUG) L.d(TAG, "onClick, ");
+        if (v.getId() == R.id.version_btn_cancel) {
+            if (!"1".equals(data.getUpgradeStrategy())) {
+                dismiss();
+            }
+        } else if (v.getId() == R.id.version_btn_update) {
+            update();
+        }
+    }
+
+
+    @Override
+    public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
+        return true;
+    }
+
+    @Override
+    public void onCancel(DialogInterface dialog) {
+        dismiss();
+    }
+
+    private void dismiss() {
+        if (BuildConfig.DEBUG) L.d(TAG, "dismiss, ");
+        try {
+            if (null != mDialog) {
+                mDialog.dismiss();
+            }
+        } catch (Exception ignored) {
+        }
+    }
+
+    private void update() {
+        if (BuildConfig.DEBUG) L.d(TAG, "update, ");
+        if (null == data) {
+            Toast.makeText(mContext, "Url is null, Error", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (!"1".equals(data.getUpgradeStrategy())) {
+            dismiss();
+        }
+
+        String url = data.getDownloadUrl();
+
+        if (isMarketUrl(url)) {
+            toMarket(url);
+        } else {
+            toBrowser(url);
+        }
+    }
+
+    private void toBrowser(String url) {
+        if (BuildConfig.DEBUG) L.d(TAG, "toBrowser, url = " + url);
+        try {
+            Intent intent = new Intent();
+            intent.setAction("android.intent.action.VIEW");
+            Uri content_url = Uri.parse(url);
+            intent.setData(content_url);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            mContext.startActivity(intent);
+        } catch (Exception ignored) {
+        }
+    }
+
+    private void toMarket(String url) {
+        if (BuildConfig.DEBUG) L.d(TAG, "toMarket, url = " + url);
+        try {
+            startGooglePlay(url);
+        } catch (Exception ignored) {
+        }
+    }
+
+    private boolean isMarketUrl(String url) {
+        if (BuildConfig.DEBUG) L.d(TAG, "isMarketUrl, url = " + url);
+        return null != url && url.startsWith("market://");
+    }
+
+    private void startGooglePlay(String url) {
+        Intent mIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+        boolean marketExist = false;
+        final List<ResolveInfo> otherApps = mContext.getPackageManager().queryIntentActivities(mIntent, 0);
+        for (ResolveInfo otherApp : otherApps) {
+            if (otherApp.activityInfo.applicationInfo.packageName.equals("com.android.vending")) {
+                ActivityInfo otherAppActivity = otherApp.activityInfo;
+                ComponentName componentName = new ComponentName(otherAppActivity.applicationInfo.packageName, otherAppActivity.name);
+                mIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                mIntent.setComponent(componentName);
+                mContext.startActivity(mIntent);
+                marketExist = true;
+                break;
+            }
+        }
+        if (!marketExist) {
+            Intent webIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=" + mContext.getPackageName()));
+            mContext.startActivity(webIntent);
+        }
+    }
 }

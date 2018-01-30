@@ -11,5 +11,6 @@ public class ReqBodyUpdate {
     public String packageName;
     public String cversion;
     public String channel;
+    public String netType;
 
 }

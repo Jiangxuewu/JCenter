@@ -2,10 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.transsnet.version">
 
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <application>
         <activity
             android:name="org.didd.version.VersionActivity"
-            android:configChanges="fontScale|layoutDirection|locale|mnc|mcc|orientation|keyboardHidden|screenSize|screenLayout|smallestScreenSize"
             android:screenOrientation="portrait"
             android:launchMode="singleInstance"
             android:theme="@style/didd_modal_dialog" />
