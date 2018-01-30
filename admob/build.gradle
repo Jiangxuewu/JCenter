@@ -1,0 +1,84 @@
+apply plugin: 'com.android.library'
+//apply plugin: 'org.greenrobot.greendao'
+
+
+android {
+    compileSdkVersion 26
+
+
+
+    defaultConfig {
+        minSdkVersion 15
+        targetSdkVersion 26
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+
+        debug {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+//    greendao {
+//        schemaVersion 1
+//        daoPackage 'org.didd.version'
+//        targetGenDir 'src/main/java'
+//    }
+
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+    implementation 'com.android.support:appcompat-v7:26.1.0'
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'com.android.support.test:runner:1.0.1'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
+
+//    compile project(':http')
+    compile 'org.didd.dev:http:1.0.0'
+    compile 'org.didd.dev:common:1.0.1'
+    compile 'com.google.code.gson:gson:2.6.2'
+    //greendao
+    compile 'org.greenrobot:greendao:3.0.1'
+}
+
+
+//gradlew install
+//gradlew bintrayUpload
+//
+//ext {
+//    bintrayRepo = 'maven'
+//    bintrayName = 'admob'                                //项目名字
+//
+//    publishedGroupId = 'org.didd.dev'                //GroupId,这个要别人引用的时候会用到，
+//    libraryName = 'admob'                         //这个是项目名字
+//    artifact = 'admob'                                   //artifactId，这个也是别人引用的时候，会用到，它要和Module名字一样
+//
+//    libraryDescription = 'Dev admob Utils'       //项目描述
+//
+//    siteUrl = 'https://github.com/Jiangxuewu/JCenter'          //把项目分享到github后的项目地址
+//    gitUrl = 'https://github.com/Jiangxuewu/JCenter.git'       //分享后的项目git地址
+//
+//    libraryVersion = '1.0.0'
+//    developerId = 'org.didd.dev'                             //这个开发者id，自己写
+//    developerName = 'skycar'                           //这个是开发者名字
+//    developerEmail = 'dev@bb-sz.com'                    //开发者邮箱
+//
+//    licenseName = 'The Apache Software License, Version 2.0'     //开源协议
+//    licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+//    allLicenses = ["Apache-2.0"]
+//}
+//apply from: 'https://raw.githubusercontent.com/nuuneoi/JCenter/master/installv1.gradle'
+//apply from: 'https://raw.githubusercontent.com/nuuneoi/JCenter/master/bintrayv1.gradle'
+//
