@@ -107,10 +107,6 @@ public class VersionApi implements IHttpCallback, View.OnClickListener, DialogIn
         bodyUpdate.channel = channel;
         bodyUpdate.netType = getNetTypeForServer();
 
-        bodyUpdate.packageName = "com.yomobigroup.yoweather";
-        bodyUpdate.cversion = "1.2.0";
-        bodyUpdate.channel = "palmstore";
-
         ReqHead head = new ReqHead();
 
         head.sign = getHeadSign(bodyUpdate);
