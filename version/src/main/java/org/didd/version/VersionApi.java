@@ -25,12 +25,12 @@ import com.transsnet.version.BuildConfig;
 import com.transsnet.version.R;
 
 import org.didd.common.log.L;
+import org.didd.common.network.NetUtil;
 import org.didd.http.BaseModel;
 import org.didd.http.HttpApi;
 import org.didd.http.HttpResponse;
 import org.didd.http.HttpResponseBody;
 import org.didd.http.IHttpCallback;
-import org.didd.common.network.NetUtil;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -58,6 +58,9 @@ public class VersionApi implements IHttpCallback, View.OnClickListener, DialogIn
 
     private boolean isRequesting;
     private boolean isDialog = false;
+    private ICallback callback;
+    private String channel;
+    private String version;
 
     public static VersionApi getInstance() {
         synchronized (LOCK) {
@@ -89,6 +92,9 @@ public class VersionApi implements IHttpCallback, View.OnClickListener, DialogIn
         mContext = context;
         mAppName = appName;
         this.isDialog = isDialog;
+        this.channel = channel;
+        this.version = version;
+        this.callback = null;
 
         DB.getInstance().init(context, DB_NAME);
 
@@ -97,8 +103,37 @@ public class VersionApi implements IHttpCallback, View.OnClickListener, DialogIn
         requestFromServer(channel, version);
     }
 
+    /**
+     * @return version info if exist
+     */
+    public VersionBean getVersion() {
+        VersionBeanDao dao = getDao();
+
+        if (null == dao) {
+            return null;
+        }
+
+        List<VersionBean> list = dao.queryBuilder().list();
+
+        if (null != list && !list.isEmpty()) {
+            return list.get(0);
+        }
+        return null;
+    }
+
+    public void startCheck(ICallback callback) {
+        this.callback = callback;
+        if (null != this.callback) {
+            callback.start();
+        }
+        requestFromServer(channel, version);
+    }
+
     private void requestFromServer(String channel, String version) {
         if (isRequesting) {
+            if (null != this.callback) {
+                callback.end(ICallback.FAILED_REQUESTING);
+            }
             return;
         }
         ReqBodyUpdate bodyUpdate = new ReqBodyUpdate();
@@ -118,7 +153,9 @@ public class VersionApi implements IHttpCallback, View.OnClickListener, DialogIn
         BaseModel model = new NewVersionModel(data, this);
         HttpApi.getInstance().request(model);
 
-        checkLocalDB();
+        if (null == this.callback) {
+            checkLocalDB();
+        }
 
         isRequesting = true;
     }
@@ -147,7 +184,7 @@ public class VersionApi implements IHttpCallback, View.OnClickListener, DialogIn
     }
 
     private void showDialogInUI(final VersionBean data) {
-        if (mResumed) {
+        if (mResumed && !isDialog) {
             return;
         }
         new Handler(Looper.getMainLooper()).post(new Runnable() {
@@ -195,6 +232,10 @@ public class VersionApi implements IHttpCallback, View.OnClickListener, DialogIn
         if (BuildConfig.DEBUG)
             L.d(TAG, "result, code = " + (null == httpResponse ? "null" : httpResponse.code));
         if (null == httpResponse || httpResponse.code < 200 || httpResponse.code >= 300) {
+
+            if (null != this.callback) {
+                callback.end(ICallback.FAILED_NET_ERROR);
+            }
             return;
         }
 
@@ -207,6 +248,9 @@ public class VersionApi implements IHttpCallback, View.OnClickListener, DialogIn
                 handleResult(response);
                 return;
             }
+        }
+        if (null != this.callback) {
+            callback.end(ICallback.FAILED_NET_UNKNOW);
         }
     }
 
@@ -258,6 +302,10 @@ public class VersionApi implements IHttpCallback, View.OnClickListener, DialogIn
     private void handleResult(VersionResponse response) {
 
         if (null == response || response.getCode() != 0) {
+
+            if (null != this.callback) {
+                callback.end(ICallback.FAILED_SERVER_ERROR);
+            }
             return;
         }
 
@@ -269,14 +317,22 @@ public class VersionApi implements IHttpCallback, View.OnClickListener, DialogIn
         if (null == data) {
             if (BuildConfig.DEBUG) L.d(TAG, "showUpdateMessage, data is null");
             saveToLocalDB(null);
+            if (null != this.callback) {
+                callback.end(ICallback.SUCCESS_NONE_DATA);
+            }
             return;
         }
 
         saveToLocalDB(data);
 
-        if (checkRight(data)) {
-            if (BuildConfig.DEBUG) L.d(TAG, "showUpdateMessage, checkRight = true");
+        if (null == this.callback) {
+            if (checkRight(data)) {
+                if (BuildConfig.DEBUG) L.d(TAG, "showUpdateMessage, checkRight = true");
+                showDialogInUI(data);
+            }
+        } else {
             showDialogInUI(data);
+            callback.end(ICallback.SUCCESS);
         }
     }
 
@@ -298,7 +354,7 @@ public class VersionApi implements IHttpCallback, View.OnClickListener, DialogIn
         }
     }
 
-    private boolean checkRight(VersionBean data) {
+    public boolean checkRight(VersionBean data) {
         if (null == data) {
             if (BuildConfig.DEBUG) L.d(TAG, "checkRight, checkRight = false, data is null");
             return false;
@@ -328,7 +384,7 @@ public class VersionApi implements IHttpCallback, View.OnClickListener, DialogIn
         return isRightNet(data.getNetType());
     }
 
-    private boolean isRightNet(int netType) {
+    public boolean isRightNet(int netType) {
         int net = NetUtil.getNetworkState(mContext);
         if (BuildConfig.DEBUG) {
             L.d(TAG, "isRightNet, net = " + net + ", netType = " + netType);
@@ -557,5 +613,20 @@ public class VersionApi implements IHttpCallback, View.OnClickListener, DialogIn
             Intent webIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=" + mContext.getPackageName()));
             mContext.startActivity(webIntent);
         }
+    }
+
+    ///////////////////////////////////////
+    public interface ICallback {
+        int SUCCESS = 0;
+        int SUCCESS_NONE_DATA = 1;
+        int FAILED = -1;
+        int FAILED_REQUESTING = -2;
+        int FAILED_NET_ERROR = -3;
+        int FAILED_SERVER_ERROR = -4;
+        int FAILED_NET_UNKNOW = -5;
+
+        void start();
+
+        void end(int resultCode);
     }
 }
