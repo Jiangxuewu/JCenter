@@ -146,10 +146,6 @@ public class VersionApi implements IHttpCallback, View.OnClickListener, DialogIn
         bodyUpdate.channel = channel;
         bodyUpdate.netType = getNetTypeForServer();
 
-        bodyUpdate.packageName = "com.palmpush.weather";
-        bodyUpdate.cversion = "1.1.7";
-        bodyUpdate.channel = "google";
-
         ReqHead head = new ReqHead();
 
         head.sign = getHeadSign(bodyUpdate);
