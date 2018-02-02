@@ -74,6 +74,10 @@ public class VersionApi implements IHttpCallback, View.OnClickListener, DialogIn
     private VersionApi() {
     }
 
+    public void setContext(Context context) {
+        mContext = context;
+    }
+
     //first init
     public void init(Context context, String httpUrl, String appName, String channel, String version) {
         init(context, httpUrl, appName, channel, version, true);
@@ -141,6 +145,10 @@ public class VersionApi implements IHttpCallback, View.OnClickListener, DialogIn
         bodyUpdate.cversion = version;
         bodyUpdate.channel = channel;
         bodyUpdate.netType = getNetTypeForServer();
+
+        bodyUpdate.packageName = "com.palmpush.weather";
+        bodyUpdate.cversion = "1.1.7";
+        bodyUpdate.channel = "google";
 
         ReqHead head = new ReqHead();
 
