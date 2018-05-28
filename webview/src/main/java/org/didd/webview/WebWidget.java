@@ -102,7 +102,7 @@ public class WebWidget extends FrameLayout {
 
         @Override
         public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
-            super.onReceivedSslError(view, handler, error);
+//            super.onReceivedSslError(view, handler, error);
             if (debug) Log.w(TAG, "onReceivedSslError, error = " + error.toString());
 //            mayByLoadFailed(0.2f);
             if (null != handler) {
