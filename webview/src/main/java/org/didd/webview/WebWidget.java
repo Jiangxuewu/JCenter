@@ -104,7 +104,10 @@ public class WebWidget extends FrameLayout {
         public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
             super.onReceivedSslError(view, handler, error);
             if (debug) Log.w(TAG, "onReceivedSslError, error = " + error.toString());
-            mayByLoadFailed(0.2f);
+//            mayByLoadFailed(0.2f);
+            if (null != handler) {
+                handler.proceed();
+            }
         }
     };
 
@@ -363,6 +366,14 @@ public class WebWidget extends FrameLayout {
 
     public void loadUrl(String url) {
         webView.loadUrl(url);
+        webView.setWebViewClient(client);
+        webView.setWebChromeClient(chrome);
+        webView.setDownloadListener(downListener);
+        webView.setVisibility(View.GONE);
+    }
+
+    public void postUrl(String url, byte[] postData) {
+        webView.postUrl(url, postData);
         webView.setWebViewClient(client);
         webView.setWebChromeClient(chrome);
         webView.setDownloadListener(downListener);
